@@ -3,49 +3,35 @@ import sys
 
 EnsureSConsVersion(1,1)
 
-# Put the package name here, e.g. casa, tables
-PACKAGE="casa"
-
 # general options
-opts = Variables( 'options.cfg', ARGUMENTS )
-opts.Add(("enable_hdf5", "Enable HDF5 support", None))
-opts.Add(("hdf5root", 
-	  "The root directory where hdf5 is installed", None))
-opts.Add(("hdf5incdir", "The hdf5 header location", None))
-opts.Add(("hdf5libdir", "The hdf5 library location", None))
+
+AddOption("--enable-hdf5", dest="enable_hdf5",
+          action="store_true", default=False)
+AddOption("--hdf5-root", dest="hdf5root",
+          type="string", default="/usr")
+#opts.Add(("--enable_hdf5", "Enable HDF5 support", False))
+#opts.Add(("--hdf5-root", 
+#          "The root directory where hdf5 is installed", None))
+#opts.Add(("--hdf5-incdir", "The hdf5 header location", None))
+#opts.Add(("--hdf5-libdir", "The hdf5 library location", None))
 
 env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 			  'HOME' : os.environ[ 'HOME' ] 
 			  },
-		  options=opts
+                  tools = ["default", "casaoptions", "buildenv", "casa", "utils",
+                           "assaytest", "installer"], toolpath = ["scons-tools"],
+                  casashrdir=["scons-tools"],
 		  )
 # keep a local sconsign database, rather than in very directory
 env.SConsignFile()
 
-env["PACKAGE"] = PACKAGE
-# use build in dir
-env["casashrdir"] = ["./tools"]
+env["casashrdir"] = ["./scons-tools"]
 env["casalibdir"] = None
 env["casaincdir"] = None
 
-env.Tool('casaoptions', env["casashrdir"])
-# Add common options
-env.AddCommonOptions(opts)
-# add installer options, e.g. prefix
-env.Tool('installer', env["casashrdir"])
-env.AddInstallerOptions( opts )
-# add them into environment
-opts.Update( env )
-# cache them for the next run
-opts.Save( 'options.cfg', env)
-Help( opts.GenerateHelpText( env ) )
+env["build"]=["opt"]
 
-env.Tool('buildenv', env["casashrdir"])
-env.Tool('casa', env["casashrdir"])
-env.Tool('utils', env["casashrdir"])
-env.Tool('assaytest', env["casashrdir"])
 
-#env["ENV"]["AIPSPATH"] = env["prefix"]
 if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     print "lex/yacc needs to be installed"
     env.Exit(1)
@@ -55,7 +41,7 @@ hdf5c = env.File("casa/HDF5Config.h")
 if not env.GetOption('clean'):
     conf = Configure(env, config_h=hdf5c)
     conf.env.AddCustomPackage('hdf5')
-    if conf.env.get("enable_hdf5") and conf.CheckLib('hdf5', autoadd=0):
+    if conf.env.get("enable-hdf5") and conf.CheckLib('hdf5', autoadd=0):
         conf.env.PrependUnique(LIBS=['hdf5'])
     else:
         print "Building without HDF5 support"
@@ -77,13 +63,15 @@ for bopt in env["build"]:
     buildenv = env.BuildEnv(bopt)
     # buildir name
     buildenv["BUILDDIR"] = Dir("#/build_%s/%s" % (env.PlatformIdent(), bopt))
-    env.SConscript(["%s/SConscript" % env["PACKAGE"]], 
+    env.SConscript(["%s/SConscript" % "casa"], 
 		   build_dir= buildenv["BUILDDIR"],
 		   duplicate=0, exports=["buildenv", "installer"])
 
 # add the Tools to the casacore/share directory. This way they can be imported
 # by the other casacore packages without having to duplicate them.
-installer.AddShares("tools", "*.py", "casacore/", True)
-installer.AddShares("tools", "casacore_assay", "casacore/")
-installer.AddShares("tools", "floatcheck.sh", "casacore/")
+installer.AddShares("scons-tools", "*.py", "casacore/", True)
+installer.AddShares("scons-tools", "casacore_assay", "casacore/")
+installer.AddShares("scons-tools", "floatcheck.sh", "casacore/")
 installer.AddHeader( str(hdf5c), "casacore/casa")
+
+print env.get("disablestatic")
