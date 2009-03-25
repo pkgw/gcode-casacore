@@ -63,7 +63,7 @@ for bopt in env["build"]:
     buildenv = env.BuildEnv(bopt)
     # buildir name
     buildenv["BUILDDIR"] = Dir("#/build_%s/%s" % (env.PlatformIdent(), bopt))
-    env.SConscript(["%s/SConscript" % "casa"], 
+    env.SConscript("SConscript" , 
 		   build_dir= buildenv["BUILDDIR"],
 		   duplicate=0, exports=["buildenv", "installer"])
 
@@ -73,5 +73,3 @@ installer.AddShares("scons-tools", "*.py", "casacore/", True)
 installer.AddShares("scons-tools", "casacore_assay", "casacore/")
 installer.AddShares("scons-tools", "floatcheck.sh", "casacore/")
 installer.AddHeader( str(hdf5c), "casacore/casa")
-
-print env.get("disablestatic")
