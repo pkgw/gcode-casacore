@@ -27,10 +27,30 @@
 
 //# Includes
 #include <casa/HDF5/HDF5Object.h>
+#include <casa/HDF5/HDF5Error.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   HDF5Object::~HDF5Object()
   {}
+
+#ifdef HAVE_LIBHDF5
+  Bool HDF5Object::hasHDF5Support()
+    { return True; }
+  void HDF5Object::throwNoHDF5()
+  {}
+#else
+  Bool HDF5Object::hasHDF5Support()
+    { return False; }
+  void HDF5Object::throwNoHDF5()
+  {
+    throw HDF5Error("HDF5 support is not compiled into this casacore version");
+  }
+#endif
+
+  void throwInvHDF5()
+  {
+    throw HDF5Error("HDF5 hid_t or hsize_t have incorrect type in HDF5Object");
+  }
 
 }
