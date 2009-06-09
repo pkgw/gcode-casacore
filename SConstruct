@@ -5,15 +5,17 @@ EnsureSConsVersion(1,1)
 
 # general options
 
-AddOption("--enable-hdf5", dest="enable_hdf5",
-          action="store_true", default=False)
-AddOption("--hdf5-root", dest="hdf5root",
-          type="string", default="/usr")
-#opts.Add(("--enable_hdf5", "Enable HDF5 support", False))
-#opts.Add(("--hdf5-root", 
-#          "The root directory where hdf5 is installed", None))
-#opts.Add(("--hdf5-incdir", "The hdf5 header location", None))
-#opts.Add(("--hdf5-libdir", "The hdf5 library location", None))
+def add_pkg_options(libid, root="/usr", lib=None, libdir=None, incdir=None):
+    AddOption("--%s-root" % libid, dest="%s_root" % libid,
+              type="string", default=root)
+    AddOption("--%s-incdir" % libid, dest="%s_incdir" % libid,
+              type="string", default=incdir or os.path.join(root, "include"))
+    AddOption("--%s-libdir" % libid, dest="%s_libdir" % libid,
+              type="string", default=libdir or os.path.join(root, "lib"))
+#    AddOption("--%s-lib" % libid, dest="%s_lib"  % libid,
+#              type="string", default=lib or libid, action="store")
+
+    
 
 env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 			  'HOME' : os.environ[ 'HOME' ] 
@@ -24,6 +26,17 @@ env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 		  )
 # keep a local sconsign database, rather than in very directory
 env.SConsignFile()
+
+AddOption("--enable-hdf5", dest="enable_hdf5",
+          action="store_true", default=False)
+add_pkg_options("hdf5")
+AddOption("--hdf5-lib" , dest="hdf5_lib",
+          type="string", action="store")
+
+AddOption("--disable-dl", dest="disable_dl",
+          action="store_true", default=False)
+
+print "DDDD",GetOption("hdf5_lib")
 
 env["casashrdir"] = ["./scons-tools"]
 env["casalibdir"] = None
@@ -37,18 +50,26 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     env.Exit(1)
 
 # Auto configure
-hdf5c = env.File("casa/HDF5Config.h")
 if not env.GetOption('clean'):
-    conf = Configure(env, config_h=hdf5c)
-    conf.env.AddCustomPackage('hdf5')
-    if conf.env.get("enable-hdf5") and conf.CheckLib('hdf5', autoadd=0):
-        conf.env.PrependUnique(LIBS=['hdf5'])
+    conf = Configure(env)
+    pkgname = "hdf5"
+    libname = env.GetOption(pkgname+"_lib")
+    print pkgname, libname
+    conf.env.AddCustomPackage(pkgname)
+    if conf.env.GetOption("enable_hdf5") and \
+           conf.CheckLib(libname, autoadd=0):
+        conf.env.PrependUnique(LIBS=[libname])
+        conf.env.Append(CPPFLAGS=['-DHAVE_LIBHDF5'])
     else:
         print "Building without HDF5 support"
+    if not conf.env.GetOption("disable_dl") and conf.CheckLib('dl', autoadd=0):    
+        conf.env.AppendUnique(LIBS=['dl'])
+        conf.env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
+    else:
+        print "Building without dlopen support"
     env = conf.Finish()
 else:
     env.Execute(Delete("options.cfg"))
-    env.Execute(Delete(hdf5c))
 # create the installer which handles installing the final build
 installer = env.Installer()
 
@@ -72,4 +93,3 @@ for bopt in env["build"]:
 installer.AddShares("scons-tools", "*.py", "casacore/", True)
 installer.AddShares("scons-tools", "casacore_assay", "casacore/")
 installer.AddShares("scons-tools", "floatcheck.sh", "casacore/")
-installer.AddHeader( str(hdf5c), "casacore/casa")

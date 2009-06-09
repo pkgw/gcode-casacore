@@ -39,9 +39,10 @@ def generate(env):
     def AddCustomPackage(pkgname=None):
         if pkgname is None:
 	    return
-	pkgroot = env.get("%sroot" % pkgname, None)
-	pkgincd = env.get("%sincdir" % pkgname, None)
-	pkglibd = env.get("%slibdir" % pkgname, None)
+
+        pkgroot = env.GetOption("%s_root" % pkgname)
+        pkgincd = env.GetOption("%s_incdir" % pkgname)
+        pkglibd = env.GetOption("%s_libdir" % pkgname)
 	incd = None
 	libd = None
 	if pkgroot is not None:
