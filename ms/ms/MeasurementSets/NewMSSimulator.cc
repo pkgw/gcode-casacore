@@ -290,6 +290,7 @@ NewMSSimulator::NewMSSimulator(const String& MSName) :
   dataWritten_p=0.0;
   hyperCubeID_p=-1;
   lastSpWID_p=-1;
+  lastNchan_p=-1;
   hasHyperCubes_p=True;
 }
 
@@ -327,6 +328,7 @@ NewMSSimulator::NewMSSimulator(MeasurementSet& theMS) :
     MSColumns msc(*ms_p);
     MSSpWindowColumns& spwc=msc.spectralWindow();
     lastSpWID_p=spwc.nrow();
+    lastNchan_p=spwc.chanFreq()(lastSpWID_p-1).nelements();
     os << "   last spectral window ID = " << lastSpWID_p << LogIO::POST;
   }
 }
@@ -375,7 +377,7 @@ void NewMSSimulator::initAnt(const String& telescope,
 			     const Vector<Double>& y, 
 			     const Vector<Double>& z,
 			     const Vector<Double>& dishDiameter,
-			     const Vector<Double>& offset,
+			     const Vector<Double>&,
 			     const Vector<String>& mount,
 			     const Vector<String>& name,
 			     const String& coordsystem,
@@ -481,13 +483,13 @@ void NewMSSimulator::local2global(Vector<Double>& xGeo,
   
 };
 
-void NewMSSimulator::longlat2global(Vector<Double>& xReturned,
-				    Vector<Double>& yReturned,
-				    Vector<Double>& zReturned,
-				    const MPosition& mRefLocation,
-				    const Vector<Double>& xIn,
-				    const Vector<Double>& yIn,
-				    const Vector<Double>& zIn)
+void NewMSSimulator::longlat2global(Vector<Double>&,
+				    Vector<Double>&,
+				    Vector<Double>&,
+				    const MPosition&,
+				    const Vector<Double>&,
+				    const Vector<Double>&,
+				    const Vector<Double>&)
 {
   LogIO os(LogOrigin("NewMSSimulator", "longlat2global()", WHERE));
   os <<  LogIO::SEVERE << "NewMSSimulator::longlat2global not yet implemented" << LogIO::POST;
@@ -525,7 +527,7 @@ void NewMSSimulator::initSpWindows(const String& spWindowName,
 				   const Int& nChan,
 				   const Quantity& startFreq,
 				   const Quantity& freqInc,
-				   const Quantity& freqRes,
+				   const Quantity&,
 				   const String& stokesString)
 {
   
@@ -949,7 +951,7 @@ void NewMSSimulator::observe(const String& sourceName,
   timeRange(0)=Tstart;
   timeRange(1)=Tend;
   obsc.timeRange().put(nobsrow,timeRange);
-  obsc.observer().put(nobsrow,"AIPS++ simulator");
+  obsc.observer().put(nobsrow,"CASA simulator");
   
   Int row=ms_p->nrow()-1;
   Int maxObsId=-1;
@@ -1002,7 +1004,7 @@ void NewMSSimulator::observe(const String& sourceName,
     if(lastSpWID_p<0) {
       needNewHyperCube=True;
     }
-    else if(baseSpWID!=lastSpWID_p) {
+    else if((baseSpWID!=lastSpWID_p)&&(lastNchan_p!=nChan)) {
       needNewHyperCube=True;
     }
     if((maxData_p>0)&&(dataWritten_p>maxData_p)) {
@@ -1015,6 +1017,7 @@ void NewMSSimulator::observe(const String& sourceName,
     addHyperCubes(hyperCubeID_p, nBaselines, nChan, nCorr);
     dataWritten_p=0;
     lastSpWID_p=baseSpWID;
+    lastNchan_p=nChan;
   }
   // ... Next extend the table
   os << "Adding " << nNewRows << " rows" << LogIO::POST;
@@ -1267,7 +1270,7 @@ void NewMSSimulator::observe(const String& sourceName,
       pointingc.time().put(m,Time);
       pointingc.timeOrigin().put(m,Tstart);
       pointingc.interval().put(m,Tint);
-      pointingc.antennaId().put(m, m);
+      pointingc.antennaId().put(m, m-numPointing);
       pointingc.directionMeasCol().put(m,direction);
       pointingc.targetMeasCol().put(m,direction);             
     }

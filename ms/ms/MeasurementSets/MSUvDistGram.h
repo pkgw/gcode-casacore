@@ -78,11 +78,11 @@ int msUvDistGramParseCommand (const MeasurementSet* ms, const String& command,
 
 // The yyerror function for the parser.
 // It throws an exception with the current token.
-void MSUvDistGramerror (char*);
+void MSUvDistGramerror (const char*);
 
 // Give the table expression node.
 const TableExprNode *msUvDistGramParseNode();
-const void msUvDistGramParseDeleteNode();
+void msUvDistGramParseDeleteNode();
 
 // Give the current position in the string.
 // This can be used when parse errors occur.

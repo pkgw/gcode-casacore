@@ -122,7 +122,7 @@ const TableExprNode* msSpwGramParseNode()
   return MSSpwParse::node();
 }
 
-const void msSpwGramParseDeleteNode()
+void msSpwGramParseDeleteNode()
 {
   MSSpwParse::cleanup();
 }
@@ -146,7 +146,7 @@ int msSpwGramInput (char* buf, int max_size)
     return nr;
 }
 
-void MSSpwGramerror (char*)
+void MSSpwGramerror (const char*)
 {
   throw (MSSelectionSpwParseError("Spw Expression: Parse error at or near '" +
 				  String(MSSpwGramtext) + "'"));

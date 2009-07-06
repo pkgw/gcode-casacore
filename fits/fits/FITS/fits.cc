@@ -606,7 +606,7 @@ Bool ReservedFitsKeywordCollection::requires_value(int n) const {
 }
 
 int ReservedFitsKeywordCollection::rules(const ReservedFitsKeyword &res,
-	const char *s, 	int s_len, Bool n, FITS::ValueType t, const void *v,
+	const char *s, 	int s_len, Bool n, FITS::ValueType, const void *v,
 	int v_len, const char *&msg) const {
 	// Return: 0 = no errors, 1 = minor errors, -1 = major errors
 	static int month[13] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
@@ -2409,7 +2409,7 @@ FitsKeywordList &FitsKeyCardTranslator::parse(const char *buff,
 	    ++cardno;
 	    kwlist.parse(&buff[i*80],80);
 	    if (show_err && (kwlist.no_parse_errs() > 0)) {
-		FITSError::ErrorLevel errlev = FITSError::WARN;
+		FITSError::ErrorLevel errlev = FITSError::INFO;
 		if (strcmp(kwlist.curr()->name(),"ERROR") == 0)
 		    errlev = FITSError::SEVERE;
 		ostringstream msgline;

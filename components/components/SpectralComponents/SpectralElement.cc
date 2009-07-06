@@ -122,6 +122,7 @@ SpectralElement::SpectralElement(SpectralElement::Types tp,
 }
 
 SpectralElement::SpectralElement(const SpectralElement &other) :
+  RecordTransformable(),
   tp_p(other.tp_p), n_p(other.n_p), str_p(other.str_p),
   par_p(0), err_p(0), fix_p(0) {
   par_p = other.par_p;
@@ -173,9 +174,9 @@ Double SpectralElement::operator[](const uInt n) const {
   return par_p(n);
 }
 
-const String *const SpectralElement::allTypes(Int &nall,
-					      const SpectralElement::Types
-					      *&typ) {
+const String* SpectralElement::allTypes(Int &nall,
+                                        const SpectralElement::Types
+                                        *&typ) {
   static const String tname[SpectralElement::N_Types] = {
     String("GAUSSIAN"),
     String("POLYNOMIAL"),

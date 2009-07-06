@@ -121,7 +121,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     return MSTimeParse::node();
   }
-  const void msTimeGramParseDeleteNode()
+  void msTimeGramParseDeleteNode()
   {
     return MSTimeParse::cleanup();
   }
@@ -148,10 +148,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   
   //----------------------------------------------------------------------------
-  void MSTimeGramerror (char*)
+  void MSTimeGramerror (const char*)
   {
     throw(MSSelectionTimeParseError("MSSelection time error: Parse error at or near token '" +
-			       String((const casa::Char*) MSTimeGramtext) + "'"));
+			       String(MSTimeGramtext) + "'"));
   }
   
   String msTimeGramRemoveEscapes (const String& in)

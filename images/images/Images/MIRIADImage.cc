@@ -463,7 +463,7 @@ void MIRIADImage::open()
 
 void MIRIADImage::getImageAttributes (CoordinateSystem& cSys,
                                       IPosition& shape, ImageInfo& imageInfo,
-                                      Unit& brightnessUnit, Record& miscInfo, 
+                                      Unit& brightnessUnit, Record&, 
                                       Bool& hasBlanks, const String& name)
 {
   LogIO os(LogOrigin("MIRIADImage", "getImageAttributes", WHERE));
@@ -521,7 +521,7 @@ void MIRIADImage::getImageAttributes (CoordinateSystem& cSys,
   } else {
      Unit t;
      brightnessUnit = t;
-     os << "FITS unit " << cunit << " unknown to AIPS++ - ignoring." << LogIO::POST;
+     os << "FITS unit " << cunit << " unknown to CASA - ignoring." << LogIO::POST;
   }
 
   // get the miriad axes descriptors

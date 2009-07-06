@@ -123,12 +123,11 @@ Bool MSFlagger::fillDataBuffer(const String& item, Bool ifrAxis)
       buffer_p.define("datafield",itm);
     }
     return True;
-    break;
   default:
     os << LogIO::WARN <<"No DATA derived item specified, buffer unchanged"
        << LogIO::POST;
-    return False;
   }
+  return False;
 }
 
 Record MSFlagger::diffDataBuffer(const String& direction, Int window,
@@ -265,7 +264,7 @@ void MSFlagger::applyRowFlags(Array<Bool>& flag, Array<Bool>& flagRow)
       for (Int j=0; j<nXY; j++) pflag[offset+j]=True;
     } else {
       Bool ok=False;
-      for (Int j=0; j<nXY && (ok=pflag[offset+j]); j++); 
+      for (Int j=0; j<nXY && (ok=pflag[offset+j]); j++) {}
       if (ok) pflagRow[i]=True;
     }
   }
@@ -487,7 +486,7 @@ Bool MSFlagger::clipDataBuffer(Float pixelLevel, Float timeLevel,
   medFmedT = buffer_p.asArrayFloat("medFmedT");
   adT = buffer_p.asArrayFloat("adT");
   medF = buffer_p.asArrayFloat("medF");
-  medTmedF = buffer_p.asArrayFloat("medTmeF");
+  medTmedF = buffer_p.asArrayFloat("medTmedF");
   adF = buffer_p.asArrayFloat("adF");
 /*
   GlishArray(buffer_p.get("adTF")).get(adTF);

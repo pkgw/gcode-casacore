@@ -122,7 +122,7 @@ const TableExprNode* msFieldGramParseNode()
 {
   return MSFieldParse::node();
 }
-const void msFieldGramParseDeleteNode() {MSFieldParse::cleanup();}
+void msFieldGramParseDeleteNode() {MSFieldParse::cleanup();}
 //# Give the string position.
 Int& msFieldGramPosition()
 {
@@ -142,7 +142,7 @@ int msFieldGramInput (char* buf, int max_size)
     return nr;
 }
 
-void MSFieldGramerror (char* t)
+void MSFieldGramerror (const char*)
 {
     throw (MSSelectionFieldParseError ("Field Expression: Parse error at or near '" +
 		      String(MSFieldGramtext) + "'"));

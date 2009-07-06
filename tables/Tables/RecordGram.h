@@ -79,7 +79,7 @@ int recordGramParseCommand (const String& command);
 
 // The yyerror function for the parser.
 // It throws an exception with the current token.
-void RecordGramerror (char*);
+void RecordGramerror (const char*);
 
 // Give the current position in the string.
 // This can be used when parse errors occur.
@@ -118,12 +118,11 @@ inline String recordGramRemoveQuotes (const String& in)
 class RecordGramVal
 {
 public:
-    Int      type;          //# i=Int, f=Double, c=DComplex, s=String t=Table
+    Int      type;          //# i=Int, f=Double, c=DComplex, s=String r=Regex
     String   str;           //# string literal; table name; field name; unit
     Bool     bval;          //# bool literal
-    Int      ival;          //# integer literal
+    Int64    ival;          //# integer literal
     Double   dval[2];       //# Double/DComplex literal
-    Table    tab;           //# Table (from query in e.g. FROM clause)
 };
 
 
@@ -195,6 +194,10 @@ public:
     // Handle a function.
     static TableExprNode handleFunc (const String& name,
 				     const TableExprNodeSet& arguments);
+
+    // Handle a regex.
+    static TableExprNode handleRegex (const TableExprNode& left,
+                                      const String& regex);
 
     // Set the final node pointer.
     static void setNodePtr (TableExprNode* nodePtr)

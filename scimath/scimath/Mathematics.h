@@ -35,7 +35,6 @@
 #include <scimath/Mathematics/FFTServer.h>
 #include <casa/BasicMath/Math.h>
 #include <scimath/Mathematics/NumericTraits.h>
-#include <scimath/Mathematics/Primes.h>
 #include <casa/BasicMath/Random.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -91,7 +90,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //      (both linear and circular) of multi-dimensional Arrays.
 // <li> <linkto file="Random.h">Random</linkto> numbers in a wide 
 //      variety of distributions. 
-// <li> <linkto class="Primes">Prime</linkto> numbers
 // <li> Interpolation in one dimension is performed by the 
 //      <linkto class="Interpolate1D">Interpolate1D</linkto> class in 
 //      the <linkto module="Functionals">Functionals</linkto> module

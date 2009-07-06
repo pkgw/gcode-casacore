@@ -74,11 +74,11 @@ class TableExprNode;
 
 // The yyerror function for the parser.
 // It throws an exception with the current token.
-void MSArrayGramerror (char*);
+void MSArrayGramerror (const char*);
 
 // Give the table expression node.
 const TableExprNode *msArrayGramParseNode();
-const void msArrayGramParseDeleteNode();
+void msArrayGramParseDeleteNode();
 
 // Give the current position in the string.
 // This can be used when parse errors occur.

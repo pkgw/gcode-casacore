@@ -157,7 +157,6 @@ void minMax(T &minVal, T &maxVal,
   }
   size_t minp = 0;
   size_t maxp = 0;
-  size_t i = 0;
   T minv = array.data()[0];
   T maxv = minv;
   if (array.contiguousStorage()) {
@@ -217,7 +216,6 @@ void minMaxMasked(T &minVal, T &maxVal,
   }
   size_t minp = 0;
   size_t maxp = 0;
-  size_t i = 0;
   T minv = array.data()[0];
   T maxv = minv;
   if (array.contiguousStorage()  &&  weight.contiguousStorage()) {
@@ -281,9 +279,8 @@ void minMax(T &minVal, T &maxVal,
   }
   size_t minp;
   size_t maxp;
-  size_t i = 0;
-  T minv;
-  T maxv;
+  T minv = T();
+  T maxv = T();
   if (array.contiguousStorage()  &&  mask.contiguousStorage()) {
     typename Array<T>::const_contiter iter = array.cbegin();
     typename Array<Bool>::const_contiter miter = mask.cbegin();
@@ -1076,7 +1073,7 @@ template<class T> T rms(const Array<T> &a)
 template<class T> T median(const Array<T> &a, Block<T> &tmp, Bool sorted,
 			   Bool takeEvenMean, Bool inPlace)
 {
-    T medval;
+    T medval=T();
     size_t nelem = a.nelements();
     if (nelem < 1) {
 	throw(ArrayError("::median(T*) - array needs at least 1 element"));

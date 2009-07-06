@@ -98,7 +98,7 @@ const TableExprNode* msAntennaGramParseNode()
 {
     return MSAntennaParse::node();
 }
-const void msAntennaGramParseDeleteNode()
+void msAntennaGramParseDeleteNode()
 {
     return MSAntennaParse::cleanup();
 }
@@ -122,7 +122,7 @@ int msAntennaGramInput (char* buf, int max_size)
     return nr;
 }
 
-void MSAntennaGramerror (char*)
+void MSAntennaGramerror (const char*)
 {
     throw (MSSelectionAntennaParseError ("Antenna Expression: Parse error at or near '" +
 					 String(MSAntennaGramtext) + "'"));

@@ -211,7 +211,9 @@ public:
     // Read the data, reconstruct the data managers, and link those to
     // the table object.
     // This function gets called when an existing table is read back.
-    void getFile (AipsIO&, Table& tab, uInt nrrow, Bool bigEndian);
+    // It returns the number of rows in case a data manager thinks there are
+    // more. That is in particular used by LofarStMan.
+    uInt getFile (AipsIO&, Table& tab, uInt nrrow, Bool bigEndian);
 
     // Set the table to being changed.
     void setTableChanged();
@@ -220,7 +222,12 @@ public:
     Block<Bool>& dataManChanged();
 
     // Synchronize the data managers when data in them have changed.
-    void resync (uInt nrrow);
+    // It returns the number of rows it think it has, which is needed for
+    // storage managers like LofarStMan.
+    // <src>forceSync=True</src> means that the data managers are forced
+    // to do a sync. Otherwise the contents of the lock file tell if a data
+    // manager has to sync.
+    uInt resync (uInt nrrow, Bool forceSync);
 
     // Invalidate the column caches for all columns.
     void invalidateColumnCaches();

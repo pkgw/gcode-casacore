@@ -91,7 +91,7 @@ const TableExprNode* msArrayGramParseNode()
 {
     return MSArrayParse::node();
 }
-const void msArrayGramParseDeleteNode()
+void msArrayGramParseDeleteNode()
 {
     return MSArrayParse::cleanup();
 }
@@ -115,7 +115,7 @@ int msArrayGramInput (char* buf, int max_size)
     return nr;
 }
 
-void MSArrayGramerror (char* t)
+void MSArrayGramerror (const char*)
 {
   throw (MSSelectionArrayError ("Array Expression: Parse error at or near '" +
 			       String(MSArrayGramtext) + "'"));

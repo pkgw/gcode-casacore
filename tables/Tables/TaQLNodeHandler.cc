@@ -119,6 +119,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } else if (node.itsValue[0] == 'm') {
       str = ".*(" + str + ").*";
     }
+    if (node.itsCaseInsensitive) {
+      str = Regex::makeCaseInsensitive(str);
+    }
     return new TaQLNodeHRValue (TableExprNode(Regex(str)));
   }
 
@@ -137,6 +140,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       break;
     case TaQLUnaryNodeRep::U_NOTEXISTS:
       break;
+    case TaQLUnaryNodeRep::U_BITNOT:
+      return new TaQLNodeHRValue (~expr);
     }
     TableExprNode exres(topStack()->doExists (notexists));
     popStack();
@@ -168,7 +173,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     case TaQLBinaryNodeRep::B_MODULO:
       return new TaQLNodeHRValue (left % right);
     case TaQLBinaryNodeRep::B_POWER:
-      return new TaQLNodeHRValue (left ^ right);
+      return new TaQLNodeHRValue (pow(left, right));
     case TaQLBinaryNodeRep::B_OR:
       return new TaQLNodeHRValue (left || right);
     case TaQLBinaryNodeRep::B_AND:
@@ -191,12 +196,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       break;
     case TaQLBinaryNodeRep::B_EQREGEX:
       return new TaQLNodeHRValue (left == right);
-    case TaQLBinaryNodeRep::B_EQREGEXCI:
-      return new TaQLNodeHRValue (downcase(left) == right);
     case TaQLBinaryNodeRep::B_NEREGEX:
       return new TaQLNodeHRValue (left != right);
-    case TaQLBinaryNodeRep::B_NEREGEXCI:
-      return new TaQLNodeHRValue (downcase(left) != right);
+    case TaQLBinaryNodeRep::B_BITAND:
+      return new TaQLNodeHRValue (left & right);
+    case TaQLBinaryNodeRep::B_BITXOR:
+      return new TaQLNodeHRValue (left ^ right);
+    case TaQLBinaryNodeRep::B_BITOR:
+      return new TaQLNodeHRValue (left | right);
     }
     return TaQLNodeResult();
   }
@@ -350,7 +357,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return TaQLNodeResult();
   }
 
-  TaQLNodeResult TaQLNodeHandler::visitJoinNode (const TaQLJoinNodeRep& node)
+  TaQLNodeResult TaQLNodeHandler::visitJoinNode (const TaQLJoinNodeRep&)
   {
     throw TableInvExpr ("join is not supported yet");
     return TaQLNodeResult();
@@ -569,7 +576,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return TaQLNodeResult();
   }
 
-  TaQLNodeResult TaQLNodeHandler::visitRecFldNode (const TaQLRecFldNodeRep& node)
+  TaQLNodeResult TaQLNodeHandler::visitRecFldNode (const TaQLRecFldNodeRep&)
   {
     // This function cannot be called, because handleRecord processes
     // the fields.
@@ -617,7 +624,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       rec.define (fld.itsName, val.itsBValue);
       break;
     case TaQLConstNodeRep::CTInt:
-      rec.define (fld.itsName, val.itsIValue);
+      rec.define (fld.itsName, Int(val.itsIValue));
       break;
     case TaQLConstNodeRep::CTReal:
       rec.define (fld.itsName, val.itsRValue);
@@ -661,7 +668,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // There is a vector of values.
     AlwaysAssert (nodeType == TaQLNode_Const, AipsError);
     // Check if all data types are equal or can be made equal.
-    int dtype;
+    int dtype=TpOther;
     for (uInt i=0; i<vals.size(); ++i) {
       TaQLConstNodeRep* val = (TaQLConstNodeRep*)(vals[i].getRep());
       if (i == 0) {

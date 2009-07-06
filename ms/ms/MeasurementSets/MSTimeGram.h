@@ -75,11 +75,11 @@ int msTimeGramParseCommand (const MeasurementSet *ms, const String& command, con
 
 // The yyerror function for the parser.
 // It throws an exception with the current token.
-void MSTimeGramerror (char*);
+void MSTimeGramerror (const char*);
 
 // Give the table expression node.
 const TableExprNode *msTimeGramParseNode();
-const void msTimeGramParseDeleteNode();
+void msTimeGramParseDeleteNode();
 
 // Give the current position in the string.
 // This can be used when parse errors occur.

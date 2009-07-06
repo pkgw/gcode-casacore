@@ -27,7 +27,7 @@
 
 //# Includes
 
-#include <scimath/Mathematics/Primes.h>
+#include <casa/BasicMath/Primes.h>
 #include <casa/BasicMath/Math.h>			// For sqrt only
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -74,7 +74,7 @@ uInt Primes::nextLargerPrimeThan( uInt number )
     if ( cacheTable.nelements() < MINSIZE ) {
 	initializeCache();
     }
-    while( !isPrime( ++number ) );
+    while( !isPrime( ++number ) ) {}
     uInt index = cacheTable.nelements();
     for( i = cacheTable.nelements(); i > 0; i-- ) {
 	if ( cacheTable[(i-1)] == number ) {

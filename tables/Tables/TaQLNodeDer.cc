@@ -133,7 +133,7 @@ TaQLConstNodeRep* TaQLConstNodeRep::restore (AipsIO& aio)
     }
   case CTInt:
     {
-      Int value;
+      Int64 value;
       aio >> value;
       return new TaQLConstNodeRep (value, isTableName);
     }
@@ -246,6 +246,11 @@ void TaQLUnaryNodeRep::show (std::ostream& os) const
     os << "NOT EXISTS ";
     itsChild.show(os);
     break;
+  case U_BITNOT:
+    os << "~(";
+    itsChild.show(os);
+    os << ')';
+    break;
   }
 }
 void TaQLUnaryNodeRep::save (AipsIO& aio) const
@@ -269,9 +274,9 @@ TaQLBinaryNodeRep* TaQLBinaryNodeRep::handleRegex (const TaQLNode& left,
 {
   Type oper;
   if (right.negate()) {
-    oper = (right.caseInsensitive()  ?  B_NEREGEXCI : B_NEREGEX);
+    oper = B_NEREGEX;
   } else {
-    oper = (right.caseInsensitive()  ?  B_EQREGEXCI : B_EQREGEX);
+    oper = B_EQREGEX;
   }
   return new TaQLBinaryNodeRep (oper, left, right); 
 }
@@ -305,7 +310,7 @@ void TaQLBinaryNodeRep::show (std::ostream& os) const
     os << '%';
     break;
   case B_POWER:
-    os << '^';
+    os << "**";
     break;
   case B_OR:
     os << "||";
@@ -339,10 +344,17 @@ void TaQLBinaryNodeRep::show (std::ostream& os) const
     paren = False;
     break;
   case B_EQREGEX:
-  case B_EQREGEXCI:
   case B_NEREGEX:
-  case B_NEREGEXCI:
     paren = False;
+    break;
+  case B_BITAND:
+    os << '&';
+    break;
+  case B_BITXOR:
+    os << '^';
+    break;
+  case B_BITOR:
+    os << '|';
     break;
   }
   if (paren) {
