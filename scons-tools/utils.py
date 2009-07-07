@@ -39,10 +39,10 @@ def generate(env):
     def AddCustomPackage(pkgname=None):
         if pkgname is None:
 	    return
-
-        pkgroot = env.GetOption("%s_root" % pkgname)
-        pkgincd = env.GetOption("%s_incdir" % pkgname)
-        pkglibd = env.GetOption("%s_libdir" % pkgname)
+        #print env.Dump()
+        pkgroot = env.get("%s_root" % pkgname)
+        pkgincd = env.get("%s_incdir" % pkgname)
+        pkglibd = env.get("%s_libdir" % pkgname)
 	incd = None
 	libd = None
 	if pkgroot is not None:
@@ -53,6 +53,7 @@ def generate(env):
 		incd = pkgincd
 	    if pkglibd is not None:
 		libd = pkglibd
+        # print "DEBUG",pkgname,pkgroot,pkgincd, pkglibd
 	if incd is not None:
 	    if not os.path.exists(incd):
 		print "Custom %s include dir '%s' not found" % (pkgname, incd)
@@ -79,30 +80,30 @@ def generate(env):
                 return xf.split(",")
             return xf.split()
 
-        xf=env.get("extracppflags", None)
+        xf=env.get("extra_cppflags", None)
         if xf:
             env.AppendUnique(CPPFLAGS=_to_list(xf))
-        xf=env.get("extralinkflags", None)
+        xf=env.get("extra_linkflags", None)
         if xf:
             env.AppendUnique(LINKFLAGS=_to_list(xf))
             env.AppendUnique(SHLINKFLAGS=_to_list(xf))
-        xf=env.get("extracxxflags", None)
+        xf=env.get("extra_cxxflags", None)
         if xf:
             env.AppendUnique(CXXFLAGS=_to_list(xf))
-        xf=env.get("extrafflags", None)
+        xf=env.get("extra_fflags", None)
         if xf:
             env.AppendUnique(FORTRANFLAGS=_to_list(xf))
             env.AppendUnique(SHFORTRANFLAGS=_to_list(xf))
-        xf=env.get("extracflags", None)
+        xf=env.get("extra_cflags", None)
         if xf:
             env.AppendUnique(CCFLAGS=_to_list(xf))
-        xf=env.get("extralibpath", None)
+        xf=env.get("extra_libpath", None)
         if xf:
             env.AppendUnique(LIBPATH=_to_list(xf))
-        xf=env.get("extracpppath", None)
+        xf=env.get("extra_cpppath", None)
         if xf:
             env.AppendUnique(CPPPATH=_to_list(xf))
-        xf=env.get("extraldlibrarypath", None)
+        xf=env.get("extra_ldlibrarypath", None)
         if xf:
             ldname = "LD_LIBRARY_PATH"
             if sys.platform == "darwin":

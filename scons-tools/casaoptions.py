@@ -4,13 +4,21 @@ from SCons.Script import AddOption
 
 
 def generate(env):
+
+    def AddPkgOptions(libid, root=None, lib=None, libdir=None, 
+                      incdir=None):
+        add_str_option(libid+"-lib", lib or libid)
+        add_str_option(libid+"-root", root)
+        add_str_option(libid+"-incdir", incdir)
+        add_str_option(libid+"-libdir", libdir)
+
     def add_str_option(optname, default=None):
-        AddOption("--%s" % optname, dest=optname, type="string",
+        envopt = optname.replace("-", "_")
+        AddOption("--%s" % optname, dest=envopt, type="string",
                   default=default)
-        clopt = env.GetOption(optname)
-        if clopt:
-            envopt = optname.replace("-", "")
-            env[envopt] = clopt
+        clopt = env.GetOption(envopt)
+#        print optname, clopt, type(clopt)
+        env[envopt] = clopt
 
     def AddCommandLineOptions( ):
         """ Adds the build environment options to the opts.  """
@@ -30,7 +38,7 @@ def generate(env):
             c = os.environ.get(comp)
             if c:
                 env[comp] = c
-
+    env.AddPkgOptions = AddPkgOptions
     AddCommandLineOptions()
 
 def exists(env):

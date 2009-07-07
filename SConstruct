@@ -3,19 +3,9 @@ import sys
 
 EnsureSConsVersion(1,1)
 
+#sys.path.insert(0, 'scons-tools')
+
 # general options
-
-def add_pkg_options(libid, root="/usr", lib=None, libdir=None, incdir=None):
-    AddOption("--%s-root" % libid, dest="%s_root" % libid,
-              type="string", default=root)
-    AddOption("--%s-incdir" % libid, dest="%s_incdir" % libid,
-              type="string", default=incdir or os.path.join(root, "include"))
-    AddOption("--%s-libdir" % libid, dest="%s_libdir" % libid,
-              type="string", default=libdir or os.path.join(root, "lib"))
-#    AddOption("--%s-lib" % libid, dest="%s_lib"  % libid,
-#              type="string", default=lib or libid, action="store")
-
-    
 
 env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 			  'HOME' : os.environ[ 'HOME' ] 
@@ -29,14 +19,15 @@ env.SConsignFile()
 
 AddOption("--enable-hdf5", dest="enable_hdf5",
           action="store_true", default=False)
-add_pkg_options("hdf5")
-AddOption("--hdf5-lib" , dest="hdf5_lib",
-          type="string", action="store")
-
 AddOption("--disable-dl", dest="disable_dl",
           action="store_true", default=False)
+AddOption("--disable-static", dest="disable_static",
+          action="store_true", default=False)
+AddOption("--enable-shared", dest="enable_shared",
+          action="store_true", default=False)
 
-print "DDDD",GetOption("hdf5_lib")
+env.AddPkgOptions("hdf5")
+env.AddPkgOptions("dl")
 
 env["casashrdir"] = ["./scons-tools"]
 env["casalibdir"] = None
@@ -52,19 +43,29 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
 # Auto configure
 if not env.GetOption('clean'):
     conf = Configure(env)
-    pkgname = "hdf5"
-    libname = env.GetOption(pkgname+"_lib")
-    print pkgname, libname
-    conf.env.AddCustomPackage(pkgname)
-    if conf.env.GetOption("enable_hdf5") and \
-           conf.CheckLib(libname, autoadd=0):
-        conf.env.PrependUnique(LIBS=[libname])
-        conf.env.Append(CPPFLAGS=['-DHAVE_LIBHDF5'])
+
+    # HDF5
+    if conf.env.GetOption("enable_hdf5"):
+        pkgname = "hdf5"
+        libname = conf.env.get(pkgname+"_lib")
+        conf.env.AddCustomPackage(pkgname)
+        if conf.CheckLib(libname, autoadd=0):
+            conf.env.PrependUnique(LIBS=[libname])
+            conf.env.Append(CPPFLAGS=['-DHAVE_LIBHDF5'])
+        else:
+            env.Exit(1)
     else:
         print "Building without HDF5 support"
-    if not conf.env.GetOption("disable_dl") and conf.CheckLib('dl', autoadd=0):    
-        conf.env.AppendUnique(LIBS=['dl'])
-        conf.env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
+    # DL
+    if not conf.env.GetOption("disable_dl"):
+        pkgname = "dl"
+        libname = env.get(pkgname+"_lib")
+        conf.env.AddCustomPackage(pkgname)
+        if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c', autoadd=0):
+            conf.env.AppendUnique(LIBS=[libname])
+            conf.env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
+        else:
+            env.Exit(1)
     else:
         print "Building without dlopen support"
     env = conf.Finish()

@@ -24,15 +24,18 @@ cpps = myenv.SGlob("*.cc", excludedirs=["test"], recursive=True )
 rootdir = myenv.Dir("#").abspath
 libname = "casa_tables"
 
-myenv.PrependUnique(LIBPATH=os.path.join(str(myenv["BUILDDIR"]), "casa"))
+myenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "casa")])
 myenv.AppendUnique(LIBS=["casa_casa"])
 
-slib =  myenv.StaticLibrary(target = libname, source = [cpps])
-myenv.Alias(os.path.basename(os.path.normpath(str(slib[0]))), slib)
-myenv.Alias("static", slib)
-myenv.Default("static")
+if not myenv.GetOption("disable_static"):
+    slib =  myenv.StaticLibrary(target = libname, source = [cpps])
+
+if myenv.GetOption("enable_shared"):
+    dlib =  myenv.SharedLibrary(target = libname, source = [cpps])
 
 testenv = myenv.Clone()
+testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "tables")])
+
 # gather test files
 # SGlob works in build dir, so only for cc files
 ttests = testenv.SGlob("Tables/test/*.cc")
@@ -40,7 +43,7 @@ lttests = testenv.SGlob("LogTables/test/*.cc")
 # point to tests local includes
 testenv.PrependUnique(LIBPATH=[testenv["BUILDDIR"]])
 # allow either linking against shared or static, static if both present
-testenv.PrependUnique(LIBS=slib)
+testenv.PrependUnique(LIBS=libname)
 testenv2 = testenv.Clone()
 # add files necessary for testing which are not names tXYZ.*
 testenv["ASSAYAUX"] = testenv.SGlob("*/test/*.data_v*")
