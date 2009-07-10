@@ -77,9 +77,6 @@ installer = env.Installer()
 # to find package based includes
 env.Append(CPPPATH='#')
 
-# Replace some builder commands (lex,yacc) with custom versions
-env.CustomCasaCom()
-
 for bopt in env["build"]:
     # create an environment copy with the dbg/opt compiler flags
     buildenv = env.BuildEnv(bopt)

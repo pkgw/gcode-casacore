@@ -10,20 +10,23 @@ cpps = myenv.SGlob("*.cc", excludedirs=["test"], recursive=True )
 
 # need this to go to the root dir, as SConsript asumes to be in the
 # build dir
-libname = "casa_casa"
+name = "casa"
+libname = "casa_%s" % name
 
 if not myenv.GetOption("disable_static"):
     slib =  myenv.StaticLibrary(target = libname, source = [cpps])
-    myenv.Alias('casa', slib)
-
+    myenv.Alias(name, slib)
+    installer.AddLibrary(slib)
+    
 if myenv.GetOption("enable_shared"):
     dlib =  myenv.SharedLibrary(target = libname, source = [cpps])
-    myenv.Alias('casa', slib)
+    myenv.Alias(name, dlib)
+    installer.AddLibrary(dlib)
 
-myenv.Default('casa')
+myenv.Default(name)
 
 testenv = myenv.Clone()
-testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "casa")])
+testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), name)])
 # gather test files
 # SGlob works in build dir, so only for cc files
 tests = testenv.SGlob("test/*.cc")
@@ -37,5 +40,5 @@ for t in tests:
 
 rootdir = myenv.Dir("#").abspath
 # install headers, only works with absolute dir.
-installer.AddHeaders( rootdir+"/casa", "*.h", "casacore/casa/", True )
-installer.AddHeaders( rootdir+"/casa", "*.tcc", "casacore/casa/", True )
+installer.AddHeaders( rootdir+"/%s" % name, "*.h", "casacore/%s" % name, True )
+installer.AddHeaders( rootdir+"/%s" % name , "*.tcc", "casacore/%s" % name, True )

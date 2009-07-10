@@ -1,22 +1,30 @@
-import os
+import os, glob
 
 # import root environment
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-# gather c files
-cs = myenv.SGlob("*.c")
+# get all the sourcefiles
+cpps = myenv.SGlob("*.c", excludedirs=["test"], recursive=True )
 
-slib =  myenv.StaticLibrary(target = "casa_"+myenv["PACKAGE"], source = cs)
-myenv.Alias(os.path.basename(os.path.normpath(str(slib[0]))), slib)
-myenv.Alias("static", slib)
-myenv.Default("static")
+# need this to go to the root dir, as SConsript asumes to be in the
+# build dir
+name = "mirlib"
+libname = "casa_%s" % name
 
-dlib =  myenv.SharedLibrary(target = "casa_"+myenv["PACKAGE"], source = cs)
-myenv.Alias(os.path.basename(os.path.normpath(str(dlib[0]))), dlib)
-myenv.Alias("shared", dlib)
-
-if "shared" in BUILD_TARGETS:
-    installer.AddLibrary(dlib)
-if "static" in BUILD_TARGETS or "shared" not in BUILD_TARGETS:
+if not myenv.GetOption("disable_static"):
+    slib =  myenv.StaticLibrary(target = libname, source = [cpps])
+    myenv.Alias(name, slib)
     installer.AddLibrary(slib)
+    
+if myenv.GetOption("enable_shared"):
+    dlib =  myenv.SharedLibrary(target = libname, source = [cpps])
+    myenv.Alias(name, dlib)
+    installer.AddLibrary(dlib)
+    
+myenv.Default(name)
+
+rootdir = myenv.Dir("#").abspath
+# install headers, only works with absolute dir.
+installer.AddHeaders( rootdir, "*.h", "casacore/mirlib", False )
+
