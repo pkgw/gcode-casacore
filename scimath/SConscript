@@ -15,7 +15,7 @@ libname = "casa_%s" % name
 lib = os.path.join(str(myenv["BUILDDIR"]), libname)
 
 # depending on ...
-myenv.PrependUnique(LIBS=["casa_scimath_f", "casa_casa"] + myenv.get("LAPACK", []) + myenv.get("BLAS", []))
+myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
 
 if not myenv.GetOption("disable_static"):
     slib =  myenv.StaticLibrary(target = lib, source = [cpps])

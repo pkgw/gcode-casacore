@@ -27,7 +27,7 @@ libname = "casa_%s" % name
 lib = os.path.join(str(myenv["BUILDDIR"]), libname)
 
 # dependencies ...
-myenv.PrependUnique(LIBS=["casa_casa"])
+myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
 
 if not myenv.GetOption("disable_static"):
     slib =  myenv.StaticLibrary(target = lib, source = [cpps])
@@ -42,7 +42,8 @@ if myenv.GetOption("enable_shared"):
 myenv.Default(name)
     
 testenv = myenv.Clone()
-testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "tables")])
+testenv.PrependUnique(LIBS=[libname])
+#testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "tables")])
 
 # gather test files
 # SGlob works in build dir, so only for cc files

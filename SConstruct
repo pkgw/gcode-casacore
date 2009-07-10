@@ -3,15 +3,16 @@ import sys
 
 EnsureSConsVersion(1,1)
 
-#sys.path.insert(0, 'scons-tools')
-
-# general options
+def quiet_print(msg):
+    if not GetOption("silent"):
+        print msg
 
 env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 			  'HOME' : os.environ[ 'HOME' ] 
 			  },
                   tools = ["default", "casaoptions", "buildenv", "casa", "utils",
-                           "assaytest", "installer"], toolpath = ["scons-tools"],
+                           "assaytest", "installer", "dependencies"],
+                  toolpath = ["scons-tools"],
                   casashrdir=["scons-tools"],
 		  )
 # keep a local sconsign database, rather than in very directory
@@ -71,7 +72,7 @@ if not env.GetOption('clean'):
         else:
             env.Exit(1)
     else:
-        print "Building without HDF5 support"
+        quiet_print("Building without HDF5 support")
     # DL
     if not conf.env.GetOption("disable_dl"):
         pkgname = "dl"
