@@ -28,6 +28,8 @@ AddOption("--enable-shared", dest="enable_shared",
 
 env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
+env.AddPkgOptions("blas")
+env.AddPkgOptions("lapack")
 
 env["casashrdir"] = ["./scons-tools"]
 env["casalibdir"] = None
@@ -43,7 +45,21 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
 # Auto configure
 if not env.GetOption('clean'):
     conf = Configure(env)
-
+    # test for blas/lapack
+    blasname = conf.env.get("blaslib", "blas").split(",")
+    conf.env.AddCustomPackage("blas")
+    blasname.reverse()
+    for b in blasname:
+        if not conf.CheckLib(b, autoadd=0):
+            Exit(1)
+    conf.env["BLAS"] = blasname            
+    lapackname = conf.env.get("lapacklib", "lapack").split(",")
+    conf.env.AddCustomPackage("lapack")
+    lapackname.reverse()
+    for l in lapackname:
+        if not conf.CheckLib(l, autoadd=0):
+            Exit(1)
+    conf.env["LAPACK"] = lapackname
     # HDF5
     if conf.env.GetOption("enable_hdf5"):
         pkgname = "hdf5"
@@ -67,7 +83,8 @@ if not env.GetOption('clean'):
         else:
             env.Exit(1)
     else:
-        print "Building without dlopen support"
+        print "Building without dlopen support"    
+
     env = conf.Finish()
 else:
     env.Execute(Delete("options.cfg"))
@@ -82,6 +99,7 @@ for bopt in env["build"]:
     buildenv = env.BuildEnv(bopt)
     # buildir name
     buildenv["BUILDDIR"] = Dir("#/build_%s/%s" % (env.PlatformIdent(), bopt))
+    buildenv.PrependUnique(LIBPATH=[buildenv["BUILDDIR"]])    
     env.SConscript("SConscript" , 
 		   build_dir= buildenv["BUILDDIR"],
 		   duplicate=0, exports=["buildenv", "installer"])

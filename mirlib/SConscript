@@ -11,14 +11,15 @@ cpps = myenv.SGlob("*.c", excludedirs=["test"], recursive=True )
 # build dir
 name = "mirlib"
 libname = "casa_%s" % name
+lib = os.path.join(str(myenv["BUILDDIR"]), libname)
 
 if not myenv.GetOption("disable_static"):
-    slib =  myenv.StaticLibrary(target = libname, source = [cpps])
+    slib =  myenv.StaticLibrary(target = lib, source = [cpps])
     myenv.Alias(name, slib)
     installer.AddLibrary(slib)
     
 if myenv.GetOption("enable_shared"):
-    dlib =  myenv.SharedLibrary(target = libname, source = [cpps])
+    dlib =  myenv.SharedLibrary(target = lib, source = [cpps])
     myenv.Alias(name, dlib)
     installer.AddLibrary(dlib)
     
