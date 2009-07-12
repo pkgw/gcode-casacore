@@ -3,63 +3,6 @@ import os
 # import root environment
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
-
-# get all the sourcefiles recursively
-lls = myenv.SGlob("*.ll", recursive=True )
-
-for f in lls:
-    myenv.CXXFile(f, CXXFILESUFFIX=".lcc")
-    path = os.path.split(f)[0]
-    myenv.AppendUnique(CPPPATH=[Dir(path)])
-
-yys = myenv.SGlob("*.yy", recursive=True )
-for f in yys:
-    myenv.CXXFile(f, CXXFILESUFFIX=".ycc")
-
-
-cpps = myenv.SGlob("*.cc", excludedirs=["test"], recursive=True )
-
-# need this to go to the root dir, as SConsript asumes to be in the
-# build dir
-rootdir = myenv.Dir("#").abspath
-name = "tables"
-libname = "casa_%s" % name
-lib = os.path.join(str(myenv["BUILDDIR"]), libname)
-
-# dependencies ...
-myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
-
-if not myenv.GetOption("disable_static"):
-    slib =  myenv.StaticLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, slib)
-    installer.AddLibrary(slib)
-    
-if myenv.GetOption("enable_shared"):
-    dlib =  myenv.SharedLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, dlib)
-    installer.AddLibrary(dlib)
-
-myenv.Default(name)
-    
-testenv = myenv.Clone()
-testenv.PrependUnique(LIBS=[libname])
-#testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), "tables")])
-
-# gather test files
-# SGlob works in build dir, so only for cc files
-ttests = testenv.SGlob("Tables/test/*.cc")
-lttests = testenv.SGlob("LogTables/test/*.cc")
-# point to tests local includes
-testenv.PrependUnique(LIBPATH=[testenv["BUILDDIR"]])
-# allow either linking against shared or static, static if both present
-testenv.PrependUnique(LIBS=libname)
-testenv2 = testenv.Clone()
-# add files necessary for testing which are not names tXYZ.*
-testenv["ASSAYAUX"] = testenv.SGlob("*/test/*.data_v*")
-map(testenv.addAssayTest, ttests)
-map(testenv2.addAssayTest, lttests)
-
-
-# install headers, only works with absolute dir.
-installer.AddHeaders( rootdir+"/tables", "*.h", "casacore", True )
-installer.AddHeaders( rootdir+"/tables", "*.tcc", "casacore", True )
+# add custom test auxiliary files
+myenv["ASSAYAUX"] = myenv.SGlob("*/test/*.data_v*")
+myenv.CasaBuilder(installer=installer)

@@ -4,42 +4,5 @@ import os, glob
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-# get all the sourcefiles
-#cpps = myenv.Glob("*.cc")
-cpps = myenv.SGlob("*.cc", excludedirs=["test"], recursive=True )
+myenv.CasaBuilder(installer=installer)
 
-# need this to go to the root dir, as SConsript asumes to be in the
-# build dir
-name = "casa"
-libname = "casa_%s" % name
-lib = os.path.join(str(myenv["BUILDDIR"]), libname)
-
-if not myenv.GetOption("disable_static"):
-    slib =  myenv.StaticLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, slib)
-    installer.AddLibrary(slib)
-    
-if myenv.GetOption("enable_shared"):
-    dlib =  myenv.SharedLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, dlib)
-    installer.AddLibrary(dlib)
-
-myenv.Default(name)
-
-testenv = myenv.Clone()
-testenv.PrependUnique(LIBPATH=[os.path.join(str(myenv["BUILDDIR"]), name)])
-# gather test files
-# SGlob works in build dir, so only for cc files
-tests = testenv.SGlob("test/*.cc")
-tests += testenv.SGlob("*/test/*.cc")
-# point to tests local includes
-testenv.PrependUnique(LIBPATH=[testenv["BUILDDIR"]])
-# allow either linking against shared or static, static if both present
-testenv.PrependUnique(LIBS=libname)
-for t in tests:
-    testenv.addAssayTest(t)
-
-rootdir = myenv.Dir("#").abspath
-# install headers, only works with absolute dir.
-installer.AddHeaders( rootdir+"/%s" % name, "*.h", "casacore/%s" % name, True )
-installer.AddHeaders( rootdir+"/%s" % name , "*.tcc", "casacore/%s" % name, True )

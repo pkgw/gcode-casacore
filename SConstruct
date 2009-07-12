@@ -13,7 +13,7 @@ env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
                   tools = ["default", "casaoptions", "buildenv", "casa", "utils",
                            "assaytest", "installer", "dependencies"],
                   toolpath = ["scons-tools"],
-                  casashrdir=["scons-tools"],
+                  casashrdir="scons-tools",
 		  )
 # keep a local sconsign database, rather than in very directory
 env.SConsignFile()
@@ -31,10 +31,6 @@ env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
 env.AddPkgOptions("blas")
 env.AddPkgOptions("lapack")
-
-env["casashrdir"] = ["./scons-tools"]
-env["casalibdir"] = None
-env["casaincdir"] = None
 
 env["build"]=["opt"]
 
