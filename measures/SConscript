@@ -4,6 +4,7 @@ import os
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 # add custom test auxiliary files
+myenv.Prepend(CPPFLAGS=myenv["DATA_DIR"])
 sofa_lib = myenv.SConscript(["%s/SConscript" % "fortran"],
                               duplicate=0, exports=["buildenv", "installer"])
 
