@@ -31,6 +31,8 @@ env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
 env.AddPkgOptions("blas")
 env.AddPkgOptions("lapack")
+env.AddPkgOptions("f2c", lib="gfortran")
+
 
 env["build"]=["opt"]
 
@@ -39,18 +41,24 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     env.Exit(1)
 
 # Auto configure
-if not env.GetOption('clean'):
+if not env.GetOption('clean') and not env.GetOption("help"):
     conf = Configure(env)
     # test for blas/lapack
     conf.env.CheckFortran(conf)
-    blasname = conf.env.get("blaslib", "blas").split(",")
+
+    f2cname = conf.env.get("f2c_lib", conf.env["F2CLIB"])
+    conf.env.AddCustomPackage("f2c")
+    if not conf.CheckLib(f2cname, autoadd=0):
+        Exit(1)
+
+    blasname = conf.env.get("blas_lib", "blas").split(",")
     conf.env.AddCustomPackage("blas")
     blasname.reverse()
     for b in blasname:
         if not conf.CheckLib(b, autoadd=0):
             Exit(1)
     conf.env["BLAS"] = blasname            
-    lapackname = conf.env.get("lapacklib", "lapack").split(",")
+    lapackname = conf.env.get("lapack_lib", "lapack").split(",")
     conf.env.AddCustomPackage("lapack")
     lapackname.reverse()
     for l in lapackname:

@@ -28,7 +28,6 @@ def generate(env):
             exopt = "extra-%s" % opt
             add_str_option(exopt)
         add_str_option("build-type", "opt")
-        add_str_option("f2c-lib")
 
         if sys.platform == 'darwin':
             add_str_option("universal") # ppc i386 ppc64 x86_64
