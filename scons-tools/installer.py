@@ -23,15 +23,15 @@ def AddOptions():
     AddOption("--"+PREFIX, dest=PREFIX,
               type="string", default=defdir)
     AddOption("--"+EPREFIX, dest=EPREFIX,
-              type="string")
+              type="string", default=os.path.join(defdir, "bin"))
     AddOption("--"+BINDIR, dest=BINDIR,
-              type="string")
+              type="string", default=os.path.join(defdir, "bin"))
     AddOption("--"+LIBDIR, dest=LIBDIR,
-              type="string")
+              type="string", default=os.path.join(defdir, "lib"))
     AddOption("--"+INCLUDEDIR, dest=INCLUDEDIR,
-              type="string")
+              type="string", default=os.path.join(defdir, "include"))
     AddOption("--"+SHAREDIR, dest=SHAREDIR,
-              type="string")
+              type="string", default=os.path.join(defdir, "share"))
 
 def generate(env):
     class Installer:
@@ -43,12 +43,11 @@ def generate(env):
             @param env The installation environment.
             """
             self._prefix = env.GetOption( PREFIX )
-            self._eprefix = env.GetOption( EPREFIX ) or self._prefix 
-            self._bindir = env.GetOption( BINDIR ) or  os.path.join( self._eprefix, "bin" )
-            self._libdir = env.GetOption( LIBDIR ) or os.path.join( self._eprefix, "lib" )
-            self._includedir = env.GetOption( INCLUDEDIR ) or \
-                os.path.join( self._prefix, "include" )
-            self._sharedir = env.get( SHAREDIR ) or  os.path.join( self._prefix, "share" )
+            self._eprefix = env.GetOption( EPREFIX )
+            self._bindir = env.GetOption( BINDIR )
+            self._libdir = env.GetOption( LIBDIR )
+            self._includedir = env.GetOption( INCLUDEDIR )
+            self._sharedir = env.GetOption( SHAREDIR )
             env.Alias( "install", env.Dir(self._bindir) )
             env.Alias( "install", env.Dir(self._libdir ) )
             env.Alias( "install", env.Dir(self._includedir ) )
@@ -60,7 +59,9 @@ def generate(env):
             obj = self._env.Install( destination, name )
             for i in obj:
                 if perm:
-                    self._env.AddPostAction( i, SCons.Defaults.Chmod( str(i), perm ) )
+                    self._env.AddPostAction(i,
+                                            SCons.Defaults.Chmod(str(i),
+                                                                 perm))
 	
         def AddProgram( self, program ):
 	        """ Install a program.
@@ -99,8 +100,10 @@ def generate(env):
 	        """ Installs a set of headers.
 	
 	        @param parent The parent directory of the headers.
-	        @param pattern A pattern to identify the files that are headers.
-	        @param basedir The subdirectory in which to install the headers.
+	        @param pattern A pattern to identify the files that
+                       are headers.
+	        @param basedir The subdirectory in which to install the
+                       headers.
 	        @param recursive Search recursively for headers.
 	        """
                 if parent.find("test") > -1:
