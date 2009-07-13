@@ -72,7 +72,6 @@ if not env.GetOption('clean') and not env.GetOption("help"):
             Exit(1)
     env.AddCustomPackage("blas")
     env["BLAS"] = blasname
-    print env["LIBS"]
     lapackname = conf.env.get("lapack_lib", "lapack").split(",")
     conf.env.AddCustomPackage("lapack")
     lapackname.reverse()
