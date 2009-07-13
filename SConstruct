@@ -51,7 +51,8 @@ if not env.GetOption('clean') and not env.GetOption("help"):
 
     f2cname = conf.env.get("f2c_lib", conf.env["F2CLIB"])
     conf.env.AddCustomPackage("f2c")
-    if not conf.CheckLib(f2cname, autoadd=1):
+    if not conf.CheckLib(f2cname, autoadd=0):
+        conf.env.PrependUnique(LIBS=f2cname)
         Exit(1)
     env.AddCustomPackage("f2c")
     env["F2CLIB"] = [f2cname]
@@ -60,7 +61,8 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     conf.env.AddCustomPackage("blas")
     blasname.reverse()
     for b in blasname:
-        if not conf.CheckLib(b, autoadd=1):
+        if not conf.CheckLib(b, autoadd=0):
+            conf.env.PrependUnique(LIBS=b)
             Exit(1)
     env.AddCustomPackage("blas")
     env["BLAS"] = blasname
@@ -70,6 +72,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     lapackname.reverse()
     for l in lapackname:
         if not conf.CheckLib(l, autoadd=0):
+            conf.env.PrependUnique(LIBS=l)
             Exit(1)
     env.AddCustomPackage("lapack")
     env["LAPACK"] = lapackname
