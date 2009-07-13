@@ -26,6 +26,9 @@ AddOption("--disable-static", dest="disable_static",
           action="store_true", default=False)
 AddOption("--enable-shared", dest="enable_shared",
           action="store_true", default=False)
+AddOption("--data-dir", dest="data_dir", default=None,
+          action="store", type="string")
+#opts.Add(("datadir", "The location of measures data tables (geodetic, ephemerides)", None))
 
 env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
@@ -39,6 +42,9 @@ env["build"]=["opt"]
 if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     print "lex/yacc needs to be installed"
     env.Exit(1)
+
+# create the installer which handles installing the final build
+installer = env.Installer()
 
 # Auto configure
 if not env.GetOption('clean') and not env.GetOption("help"):
@@ -66,7 +72,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
             Exit(1)
     env.AddCustomPackage("blas")
     env["BLAS"] = blasname
-           
+    print env["LIBS"]
     lapackname = conf.env.get("lapack_lib", "lapack").split(",")
     conf.env.AddCustomPackage("lapack")
     lapackname.reverse()
@@ -94,7 +100,8 @@ if not env.GetOption('clean') and not env.GetOption("help"):
         pkgname = "dl"
         libname = env.get(pkgname+"_lib")
         conf.env.AddCustomPackage(pkgname)
-        if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c', autoadd=0):
+        if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c',
+                                   autoadd=0):
             env.AppendUnique(LIBS=[libname])
             env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
         else:
@@ -102,11 +109,26 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     else:
         print "Building without dlopen support"    
 
+    ddir = env.GetOption("data_dir")
+    if ddir:
+        adir = os.path.expanduser(os.path.expandvars(ddir))
+        if os.path.exists(adir) \
+               and os.path.exists(os.path.join(adir, 'ephemerides')) \
+               and os.path.exists(os.path.join(adir, 'geodetic')):
+            pass
+        else:
+            print """Warning: measures data directory given doesn't contain
+            geodetic and ephemerides.
+            Using '%s' as default search location""" % ddir
+            
+            # Note the escaped single quotes to handle the string in the define
+    else:
+        ddir = os.path.join(conf.env.GetOption("sharedir"),
+                            "casacore", "data")
+    conf.env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
 #    env = conf.Finish()
 else:
     env.Execute(Delete("options.cfg"))
-# create the installer which handles installing the final build
-installer = env.Installer()
 
 # to find package based includes
 env.Append(CPPPATH='#')
