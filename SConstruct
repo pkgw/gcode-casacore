@@ -14,6 +14,7 @@ env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
                            "assaytest", "installer", "dependencies"],
                   toolpath = ["scons-tools"],
                   casashrdir="scons-tools",
+                  DATA_DIR="."
 		  )
 # keep a local sconsign database, rather than in very directory
 env.SConsignFile()
@@ -58,8 +59,8 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     f2cname = conf.env.get("f2c_lib", conf.env["F2CLIB"])
     conf.env.AddCustomPackage("f2c")
     if not conf.CheckLib(f2cname, autoadd=0):
-        conf.env.PrependUnique(LIBS=f2cname)
         Exit(1)
+    conf.env.PrependUnique(LIBS=f2cname)        
     env.AddCustomPackage("f2c")
     env["F2CLIB"] = [f2cname]
 
@@ -68,17 +69,18 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     blasname.reverse()
     for b in blasname:
         if not conf.CheckLib(b, autoadd=0):
-            conf.env.PrependUnique(LIBS=b)
             Exit(1)
+    conf.env.PrependUnique(LIBS=b)            
     env.AddCustomPackage("blas")
     env["BLAS"] = blasname
+
     lapackname = conf.env.get("lapack_lib", "lapack").split(",")
     conf.env.AddCustomPackage("lapack")
     lapackname.reverse()
     for l in lapackname:
         if not conf.CheckLib(l, autoadd=0):
-            conf.env.PrependUnique(LIBS=l)
             Exit(1)
+    conf.env.PrependUnique(LIBS=l)    
     env.AddCustomPackage("lapack")
     env["LAPACK"] = lapackname
 
@@ -124,7 +126,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     else:
         ddir = os.path.join(conf.env.GetOption("sharedir"),
                             "casacore", "data")
-    conf.env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
+    env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
 #    env = conf.Finish()
 else:
     env.Execute(Delete("options.cfg"))
