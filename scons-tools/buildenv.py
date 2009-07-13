@@ -19,7 +19,8 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
     for f in yys:
         myenv.CXXFile(f, CXXFILESUFFIX=".ycc")
 
-    cpps = myenv.SGlob(source, excludedirs=["test"], recursive=True )
+    cpps = myenv.SGlob(source, excludedirs=["test", "apps", "fortran"],
+                       recursive=True )
 
     libname = "casa_%s" % target
     lib = os.path.join(builddir, libname)
@@ -39,8 +40,10 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
 
     rootdir = myenv.Dir("#").abspath
     # install headers, only works with absolute dir.
-    installer.AddHeaders( rootdir+"/%s" % target, "*.h", "casacore/%s" % target, True )
-    installer.AddHeaders( rootdir+"/%s" % target , "*.tcc", "casacore/%s" % target, True )
+    installer.AddHeaders( rootdir+"/%s" % target, "*.h", 
+                          "casacore/%s" % target, True )
+    installer.AddHeaders( rootdir+"/%s" % target , "*.tcc", 
+                          "casacore/%s" % target, True )
     
     if tests:
         testenv = myenv.Clone()
