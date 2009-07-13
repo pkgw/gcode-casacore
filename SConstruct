@@ -43,36 +43,45 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
 # Auto configure
 if not env.GetOption('clean') and not env.GetOption("help"):
     conf = Configure(env)
-    # test for blas/lapack
+
+    # DON'T USE conf.env.Finish
+    # Add all packages explicitly to 'env'
+    # but use autoadd=1 for all CheckLibs
     conf.env.CheckFortran(conf)
 
     f2cname = conf.env.get("f2c_lib", conf.env["F2CLIB"])
     conf.env.AddCustomPackage("f2c")
-    if not conf.CheckLib(f2cname, autoadd=0):
+    if not conf.CheckLib(f2cname, autoadd=1):
         Exit(1)
+    env.AddCustomPackage("f2c")
+    env["F2CLIB"] = [f2cname]
 
     blasname = conf.env.get("blas_lib", "blas").split(",")
     conf.env.AddCustomPackage("blas")
     blasname.reverse()
     for b in blasname:
-        if not conf.CheckLib(b, autoadd=0):
+        if not conf.CheckLib(b, autoadd=1):
             Exit(1)
-    conf.env["BLAS"] = blasname            
+    env.AddCustomPackage("blas")
+    env["BLAS"] = blasname
+           
     lapackname = conf.env.get("lapack_lib", "lapack").split(",")
     conf.env.AddCustomPackage("lapack")
     lapackname.reverse()
     for l in lapackname:
         if not conf.CheckLib(l, autoadd=0):
             Exit(1)
-    conf.env["LAPACK"] = lapackname
+    env.AddCustomPackage("lapack")
+    env["LAPACK"] = lapackname
+
     # HDF5
     if conf.env.GetOption("enable_hdf5"):
         pkgname = "hdf5"
         libname = conf.env.get(pkgname+"_lib")
         conf.env.AddCustomPackage(pkgname)
         if conf.CheckLib(libname, autoadd=0):
-            conf.env.PrependUnique(LIBS=[libname])
-            conf.env.Append(CPPFLAGS=['-DHAVE_LIBHDF5'])
+            env.PrependUnique(LIBS=[libname])
+            env.Append(CPPFLAGS=['-DHAVE_LIBHDF5'])
         else:
             env.Exit(1)
     else:
@@ -83,14 +92,14 @@ if not env.GetOption('clean') and not env.GetOption("help"):
         libname = env.get(pkgname+"_lib")
         conf.env.AddCustomPackage(pkgname)
         if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c', autoadd=0):
-            conf.env.AppendUnique(LIBS=[libname])
-            conf.env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
+            env.AppendUnique(LIBS=[libname])
+            env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
         else:
             env.Exit(1)
     else:
         print "Building without dlopen support"    
 
-    env = conf.Finish()
+#    env = conf.Finish()
 else:
     env.Execute(Delete("options.cfg"))
 # create the installer which handles installing the final build
