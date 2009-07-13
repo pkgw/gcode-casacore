@@ -1,6 +1,7 @@
 import os
 
-def CasaBuilder(env, target=None, source="*.cc", installer=None, tests=True):
+def CasaBuilder(env, target=None, source="*.cc", installer=None, 
+                tests=True, test_libs=[]):
     if target is None:
         target = os.path.split(os.path.abspath("."))[-1]
     
@@ -25,7 +26,6 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None, tests=True):
 
     # dependencies ...
     myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
-
     if not myenv.GetOption("disable_static"):
         slib =  myenv.StaticLibrary(target = lib, source = [cpps])
         myenv.Alias(target, slib)
@@ -50,7 +50,7 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None, tests=True):
         tests = testenv.SGlob("test/*.cc")
         tests += testenv.SGlob("*/test/*.cc")
         # allow either linking against shared or static, static if both present
-        testenv.PrependUnique(LIBS=libname)
+        testenv.PrependUnique(LIBS=[libname]+test_libs)
         for t in tests:
             testenv.addAssayTest(t, alias='test_'+target)
         

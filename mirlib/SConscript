@@ -4,28 +4,5 @@ import os, glob
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-# get all the sourcefiles
-cpps = myenv.SGlob("*.c", excludedirs=["test"], recursive=True )
-
-# need this to go to the root dir, as SConsript asumes to be in the
-# build dir
-name = "mirlib"
-libname = "casa_%s" % name
-lib = os.path.join(str(myenv["BUILDDIR"]), libname)
-
-if not myenv.GetOption("disable_static"):
-    slib =  myenv.StaticLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, slib)
-    installer.AddLibrary(slib)
-    
-if myenv.GetOption("enable_shared"):
-    dlib =  myenv.SharedLibrary(target = lib, source = [cpps])
-    myenv.Alias(name, dlib)
-    installer.AddLibrary(dlib)
-    
-myenv.Default(name)
-
-rootdir = myenv.Dir("#").abspath
-# install headers, only works with absolute dir.
-installer.AddHeaders( rootdir, "*.h", "casacore/mirlib", False )
+myenv.CasaBuilder(source="*.c", installer=installer, tests=False)
 

@@ -34,7 +34,6 @@ env.AddPkgOptions("lapack")
 
 env["build"]=["opt"]
 
-
 if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     print "lex/yacc needs to be installed"
     env.Exit(1)
@@ -43,6 +42,7 @@ if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
 if not env.GetOption('clean'):
     conf = Configure(env)
     # test for blas/lapack
+    conf.env.CheckFortran(conf)
     blasname = conf.env.get("blaslib", "blas").split(",")
     conf.env.AddCustomPackage("blas")
     blasname.reverse()

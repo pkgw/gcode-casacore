@@ -1,10 +1,12 @@
 def generate(env):
+    
     def get_deptree():
         return {'casa_casa' : None,
                 'casa_tables': ['casa_casa'],
                 'casa_mirlib': ['casa_casa'],
-                'casa_scimath_f': ['casa_casa'],
-                'casa_scimath': ['casa_scimath_f'] + env.get("LAPACK", []) + env.get("BLAS", []),
+                'casa_scimath_f': ['casa_casa'] + env.get("LAPACK", []) 
+                                  + env.get("BLAS", []) + env.get("F2CLIB", []),
+                'casa_scimath': ['casa_scimath_f'],
                 'casa_measures': ['casa_tables', 'casa_scimath'],
                 'casa_fits': ['casa_measures'] + env.get("CFITSIO", []),
                 'casa_coordinates': ['casa_fits'] + env.get("WCSLIB", []),

@@ -2,7 +2,6 @@ import sys
 import os
 import glob
 import re
-import string
 import platform
 
 def generate(env):
@@ -112,8 +111,7 @@ def generate(env):
     MergeFlags()
 
         
-    def CheckFortran(conf):
-        
+    def CheckFortran(conf):  
         def getf2clib(fc):
             fdict = {'gfortran': 'gfortran', 'g77': 'g2c', 'f77': 'f2c'}
             return fdict[fc]
@@ -123,9 +121,9 @@ def generate(env):
 	    detect_fortran = conf.env.Detect(['gfortran', 'g77', 'f77'])
 	    conf.env["FORTRAN"] = detect_fortran
         f2clib = conf.env.get("f2clib", getf2clib(conf.env["FORTRAN"]))
-        if not conf.CheckLib(f2clib):
+        if not conf.CheckLib(f2clib, autoadd=0):
             conf.env.Exit(1)
-
+        conf.env["F2CLIB"] = [f2clib]
 	if conf.env["FORTRAN"].startswith("g77"):
             fflags = ["-Wno-globals", "-fno-second-underscore"]
 	    conf.env.AppendUnique(SHFORTRANFLAGS=fflags)
@@ -141,10 +139,4 @@ def generate(env):
     env.MessageAction = env.Action(null_action, message)
 
 def exists(env):
-    try:
-        import os
-        import glob
-    except ImportError:
-        return False
-    else:
-        return True
+    return 1

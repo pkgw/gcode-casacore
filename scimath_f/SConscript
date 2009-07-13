@@ -4,23 +4,5 @@ import os, glob
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-# get all the sourcefiles
-ffs = myenv.SGlob("*.f", excludedirs=["test"], recursive=True )
+myenv.CasaBuilder(source="*.f", installer=installer, tests=False)
 
-# need this to go to the root dir, as SConsript asumes to be in the
-# build dir
-name = "scimath_f"
-libname = "casa_%s" % name
-lib = os.path.join(str(myenv["BUILDDIR"]), libname)
-
-if not myenv.GetOption("disable_static"):
-    slib =  myenv.StaticLibrary(target = lib, source = ffs)
-    myenv.Alias(name, slib)
-    installer.AddLibrary(slib)
-    
-if myenv.GetOption("enable_shared"):
-    dlib =  myenv.SharedLibrary(target = lib, source = ffs)
-    myenv.Alias(name, dlib)
-    installer.AddLibrary(dlib)
-    
-myenv.Default(name)

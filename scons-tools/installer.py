@@ -94,7 +94,8 @@ def generate(env):
         def AddHeader( self, header, basedir="" ):
 	        self.Add( self._includedir, header, basedir )
 	
-        def AddHeaders( self, parent, pattern, basedir="", recursive=False ):
+        def AddHeaders( self, parent, pattern, basedir="", recursive=False, 
+                        exclude_tests=True ):
 	        """ Installs a set of headers.
 	
 	        @param parent The parent directory of the headers.
@@ -102,6 +103,8 @@ def generate(env):
 	        @param basedir The subdirectory in which to install the headers.
 	        @param recursive Search recursively for headers.
 	        """
+                if parent.find("test") > -1:
+                    return
 	        for entry in os.listdir( parent ):
 	            entrypath = os.path.join( parent, entry )
 	            if os.path.isfile( entrypath ) and  \
