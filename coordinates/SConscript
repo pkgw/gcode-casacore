@@ -4,7 +4,5 @@ import os, glob
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-myenv.AppsBuilder(installer=installer)
-
-
+myenv.CasaBuilder(installer=installer)
 
