@@ -8,8 +8,8 @@ def AppsBuilder(env, installer=None):
     # get all the sourcefiles recursively
     cpps = myenv.SGlob("*.cc", recursive=True )
 
-
     myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
+    myenv.PrependUnique(LIBS=[libname])
     myenv.PrependUnique(LIBPATH=[myenv["BUILDDIR"]])
 
     cpppath = myenv.get("CPPPATH", [])
