@@ -4,6 +4,11 @@ import glob
 import re
 import platform
 
+def _to_list(xf):
+    if xf.count(","):
+        return xf.split(",")
+    return xf.split()
+
 def generate(env):
 
     def SGlob(pattern, excludedirs=[], recursive=False):

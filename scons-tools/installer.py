@@ -21,17 +21,22 @@ def AddOptions():
     defdir = "/usr/local"
     
     AddOption("--"+PREFIX, dest=PREFIX,
-              type="string", default=defdir)
+              type="string", default=defdir, 
+              help="The installation prefix (default: %s)" % defdir)
     AddOption("--"+EPREFIX, dest=EPREFIX,
               type="string", default=defdir)
     AddOption("--"+BINDIR, dest=BINDIR,
-              type="string", default=None)
+              type="string", default=None, 
+              help="The installation bin directory (default: %s/bin)" % defdir)
     AddOption("--"+LIBDIR, dest=LIBDIR,
-              type="string", default=None)
+              type="string", default=None, 
+              help="The installation lib directory (default: %s/lib)" % defdir)
     AddOption("--"+INCLUDEDIR, dest=INCLUDEDIR,
-              type="string", default=None)
+              type="string", default=None, 
+              help="The installation include directory (default: %s/include)" % defdir)
     AddOption("--"+SHAREDIR, dest=SHAREDIR,
-              type="string", default=None)
+              type="string", default=None, 
+              help="The installation share directory (default: %s/share)" % defdir)
 
 def generate(env):
     class Installer:

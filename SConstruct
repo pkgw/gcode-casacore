@@ -20,17 +20,23 @@ env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
 env.SConsignFile()
 
 AddOption("--enable-hdf5", dest="enable_hdf5",
-          action="store_true", default=False)
+          action="store_true", default=False,
+          help="Enable the HDF5 library")
 AddOption("--disable-dl", dest="disable_dl",
-          action="store_true", default=False)
+          action="store_true", default=False,
+          help="Disable the use of dlopen")
 AddOption("--disable-static", dest="disable_static",
-          action="store_true", default=False)
+          action="store_true", default=False,
+          help="Disable building static libraries")
 AddOption("--enable-shared", dest="enable_shared",
-          action="store_true", default=False)
+          action="store_true", default=False,
+          help="Enable building shared (dynamic) libraries")
 AddOption("--data-dir", dest="data_dir", default=None,
-          action="store", type="string")
+          action="store", type="string",
+          help="The location of the measures data directory to compile in as the defautl search location")
 AddOption("--build-type", dest="build_type", default="opt",
-          action="store", type="string")
+          action="store", type="string",
+          help="Build optimized 'opt' (default) or debug 'dbg'")
 
 env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
