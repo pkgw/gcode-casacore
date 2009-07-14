@@ -8,4 +8,7 @@ myenv.Prepend(CPPFLAGS=myenv["DATA_DIR"])
 sofa_lib = myenv.SConscript(["%s/SConscript" % "fortran"],
                               duplicate=0, exports=["buildenv", "installer"])
 
+apps =  myenv.SConscript(["%s/SConscript" % "apps"],
+                         duplicate=0, exports=["buildenv", "installer"])
+
 myenv.CasaBuilder(installer=installer, test_libs=[sofa_lib])

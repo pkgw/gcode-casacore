@@ -23,15 +23,15 @@ def AddOptions():
     AddOption("--"+PREFIX, dest=PREFIX,
               type="string", default=defdir)
     AddOption("--"+EPREFIX, dest=EPREFIX,
-              type="string", default=os.path.join(defdir, "bin"))
+              type="string", default=defdir)
     AddOption("--"+BINDIR, dest=BINDIR,
-              type="string", default=os.path.join(defdir, "bin"))
+              type="string", default=None)
     AddOption("--"+LIBDIR, dest=LIBDIR,
-              type="string", default=os.path.join(defdir, "lib"))
+              type="string", default=None)
     AddOption("--"+INCLUDEDIR, dest=INCLUDEDIR,
-              type="string", default=os.path.join(defdir, "include"))
+              type="string", default=None)
     AddOption("--"+SHAREDIR, dest=SHAREDIR,
-              type="string", default=os.path.join(defdir, "share"))
+              type="string", default=None)
 
 def generate(env):
     class Installer:
@@ -44,10 +44,14 @@ def generate(env):
             """
             self._prefix = env.GetOption( PREFIX )
             self._eprefix = env.GetOption( EPREFIX )
-            self._bindir = env.GetOption( BINDIR )
-            self._libdir = env.GetOption( LIBDIR )
-            self._includedir = env.GetOption( INCLUDEDIR )
-            self._sharedir = env.GetOption( SHAREDIR )
+            self._bindir = env.GetOption( BINDIR ) \
+                           or os.path.join(self._prefix, "bin")
+            self._libdir = env.GetOption( LIBDIR ) \
+                           or os.path.join(self._prefix, "lib")
+            self._includedir = env.GetOption( INCLUDEDIR ) \
+                           or os.path.join(self._prefix, "include")
+            self._sharedir = env.GetOption( SHAREDIR ) \
+                           or os.path.join(self._prefix, "share")
             env.Alias( "install", env.Dir(self._bindir) )
             env.Alias( "install", env.Dir(self._libdir ) )
             env.Alias( "install", env.Dir(self._includedir ) )

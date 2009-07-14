@@ -1,5 +1,29 @@
 import os
 
+def AppsBuilder(env, installer=None):
+    myenv = env.Clone()
+    pkgdir = os.path.split(os.path.abspath(".."))[-1]
+    libname = "casa_"+pkgdir
+
+    # get all the sourcefiles recursively
+    cpps = myenv.SGlob("*.cc", recursive=True )
+
+
+    myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
+    myenv.PrependUnique(LIBPATH=[myenv["BUILDDIR"]])
+
+    cpppath = myenv.get("CPPPATH", [])
+    for i in cpps:
+        # get the basename no suffix of the file
+        tinfile = os.path.splitext(os.path.basename(i))[0]
+        tdir = os.path.split(i)[0]
+        tapp = myenv.Program(source=i, CPPPATH=cpppath+[tdir])
+        myenv.Alias(pkgdir, tapp)
+        installer.AddProgram(tapp)
+        # fix this to work with multiple files or if it doesn't exists
+        installer.AddProgram(str(tapp[0])+".csh")
+    
+
 def CasaBuilder(env, target=None, source="*.cc", installer=None, 
                 tests=True, test_libs=[]):
     if target is None:
@@ -61,16 +85,23 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
 def generate(env):
     def BuildEnv(buildtype):
 	lenv = env.Clone()
-	lenv["build"] = buildtype
+        # to find package based includes
+        lenv.AppendUnique(CPPPATH=['#'])
+        lenv.AppendUnique(CPPFLAGS=["-Wall"])
 	if buildtype == "dbg":
 	    lenv.AppendUnique(CPPFLAGS=["-g"])
 	elif buildtype == "opt":
 	    lenv.AppendUnique(CPPFLAGS=["-O2"])
 	    lenv.AppendUnique(FORTRANFLAGS=["-O2"])	    
+        # buildir name
+        lenv["BUILDDIR"] = env.Dir("#/build_%s/%s" % (env.PlatformIdent(), 
+                                                      buildtype))
+        lenv.PrependUnique(LIBPATH=[lenv["BUILDDIR"]])
 	return lenv
     env.BuildEnv = BuildEnv
 
     env.AddMethod(CasaBuilder)
+    env.AddMethod(AppsBuilder)
 
 def exists(env):
     return 1

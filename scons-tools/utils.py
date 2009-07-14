@@ -73,42 +73,32 @@ def generate(env):
 	return p + "_" + platform.machine()
     env.PlatformIdent = PlatformIdent
 
-    def MergeFlags():
-        def _to_list(xf):
-            if xf.count(","):
-                return xf.split(",")
-            return xf.split()
+    def AddFlags():
+        env.MergeFlags(env.get("extra_cppflags", None))
+        env.MergeFlags(env.get("extra_cxxflags", None))
+        env.MergeFlags(env.get("extra_cflags", None))
+        env.MergeFlags(env.get("extra_includedir", None))
+        env.MergeFlags(env.get("extra_librarydir", None))
 
-        xf=env.get("extra_cppflags", None)
-        if xf:
-            env.AppendUnique(CPPFLAGS=_to_list(xf))
-        xf=env.get("extra_linkflags", None)
-        if xf:
-            env.AppendUnique(LINKFLAGS=_to_list(xf))
-            env.AppendUnique(SHLINKFLAGS=_to_list(xf))
-        xf=env.get("extra_cxxflags", None)
-        if xf:
-            env.AppendUnique(CXXFLAGS=_to_list(xf))
+        # need to add it to both
+        linkf = env.ParseFlags(env.get("extra_linkflags", None))['LINKFLAGS']
+        env.AppendUnique(LINKFLAGS=linkf)
+        env.AppendUnique(SHLINKFLAGS=linkf)
+        # custom not handled by ParseFlags
         xf=env.get("extra_fflags", None)
         if xf:
             env.AppendUnique(FORTRANFLAGS=_to_list(xf))
             env.AppendUnique(SHFORTRANFLAGS=_to_list(xf))
-        xf=env.get("extra_cflags", None)
-        if xf:
-            env.AppendUnique(CCFLAGS=_to_list(xf))
-        xf=env.get("extra_libpath", None)
-        if xf:
-            env.AppendUnique(LIBPATH=_to_list(xf))
-        xf=env.get("extra_cpppath", None)
-        if xf:
-            env.AppendUnique(CPPPATH=_to_list(xf))
         xf=env.get("extra_ldlibrarypath", None)
         if xf:
             ldname = sys.platform == "darwin" and "DYLD_LIBRARY_PATH" or \
                 "LD_LIBRARY_PATH"
             env.AppendENVPath(ldname, _to_list(xf))
-    # set the extra flags if available
-    MergeFlags()
+        xf=env.get("extra_path", None)
+        if xf:
+            env.AppendENVPath("PATH", _to_list(xf))
+    # set the extra flags where available
+    AddFlags()
 
         
     def CheckFortran(conf):  

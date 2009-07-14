@@ -17,26 +17,29 @@ def generate(env):
         AddOption("--%s" % optname, dest=envopt, type="string",
                   default=default)
         clopt = env.GetOption(envopt)
-#        print optname, clopt, type(clopt)
         env[envopt] = clopt
+
+    def add_comp_option(optname):
+        AddOption("--with-%s" % optname.lower(), dest=optname,
+                  type="string", default=None)
+        clopt = env.GetOption(optname)
+        if clopt:
+            env[optname] = clopt        
 
     def AddCommandLineOptions( ):
         """ Adds the build environment options to the opts.  """
         options = ["cppflags", "cxxflags", "cflags", "linkflags", "fflags",
-                   "includedir", "librarydir", "ldlibrarypath"]
+                   "includedir", "librarydir", "ldlibrarypath", "path" ]
         for opt in options:
             exopt = "extra-%s" % opt
             add_str_option(exopt)
-        add_str_option("build-type", "opt")
+        options = ["CC", "CXX", "FORTRAN"]
+        for opt in options:
+            add_comp_option(opt)
 
         if sys.platform == 'darwin':
             add_str_option("universal") # ppc i386 ppc64 x86_64
 
-        compilers = ["CC", "CXX", "FORTRAN"]
-        for comp in compilers:
-            c = os.environ.get(comp)
-            if c:
-                env[comp] = c
     env.AddPkgOptions = AddPkgOptions
     AddCommandLineOptions()
 

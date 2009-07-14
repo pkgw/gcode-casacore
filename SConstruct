@@ -14,7 +14,7 @@ env = Environment(ENV = { 'PATH' : os.environ[ 'PATH' ],
                            "assaytest", "installer", "dependencies"],
                   toolpath = ["scons-tools"],
                   casashrdir="scons-tools",
-                  DATA_DIR="."
+                  DATA_DIR=".",
 		  )
 # keep a local sconsign database, rather than in very directory
 env.SConsignFile()
@@ -29,16 +29,16 @@ AddOption("--enable-shared", dest="enable_shared",
           action="store_true", default=False)
 AddOption("--data-dir", dest="data_dir", default=None,
           action="store", type="string")
-#opts.Add(("datadir", "The location of measures data tables (geodetic, ephemerides)", None))
+AddOption("--build-type", dest="build_type", default="opt",
+          action="store", type="string")
 
 env.AddPkgOptions("hdf5")
 env.AddPkgOptions("dl")
 env.AddPkgOptions("blas")
 env.AddPkgOptions("lapack")
 env.AddPkgOptions("f2c", lib="gfortran")
-
-
-env["build"]=["opt"]
+env.AddPkgOptions("cfitsio")
+env.AddPkgOptions("wcs")
 
 if not (env.Detect(["flex","lex"]) and env.Detect(["bison", "yacc"])):
     print "lex/yacc needs to be installed"
@@ -54,6 +54,20 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     # DON'T USE conf.env.Finish
     # Add all packages explicitly to 'env'
     # but use autoadd=1 for all CheckLibs
+    # DL
+    if not conf.env.GetOption("disable_dl"):
+        pkgname = "dl"
+        libname = env.get(pkgname+"_lib")
+        conf.env.AddCustomPackage(pkgname)
+        if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c',
+                                   autoadd=0):
+            env.AppendUnique(LIBS=[libname])
+            env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
+        else:
+            env.Exit(1)
+    else:
+        print "Building without dlopen support"    
+
     conf.env.CheckFortran(conf)
 
     f2cname = conf.env.get("f2c_lib", conf.env["F2CLIB"])
@@ -96,19 +110,22 @@ if not env.GetOption('clean') and not env.GetOption("help"):
             env.Exit(1)
     else:
         quiet_print("Building without HDF5 support")
-    # DL
-    if not conf.env.GetOption("disable_dl"):
-        pkgname = "dl"
-        libname = env.get(pkgname+"_lib")
-        conf.env.AddCustomPackage(pkgname)
-        if conf.CheckLibWithHeader(libname, 'dlfcn.h', language='c',
-                                   autoadd=0):
-            env.AppendUnique(LIBS=[libname])
-            env.Append(CPPFLAGS=['-DHAVE_DLOPEN'])
-        else:
-            env.Exit(1)
-    else:
-        print "Building without dlopen support"    
+
+    pkgname = "cfitsio"
+    cfitsioname = conf.env.get(pkgname+"_lib")
+    conf.env.AddCustomPackage(pkgname)
+    if not conf.CheckLibWithHeader(cfitsioname, "fitsio.h", "c", autoadd=0):
+        Exit(1)
+    env["CFITSIO"] = [cfitsioname]
+    env.AddCustomPackage(pkgname)
+
+    pkgname = "wcs"
+    libname = conf.env.get(pkgname+"_lib")
+    conf.env.AddCustomPackage(pkgname)
+    if not conf.CheckLibWithHeader(libname, "wcslib/wcs.h", "c", autoadd=0):
+        Exit(1)
+    env["WCS"] = [libname]
+    env.AddCustomPackage(pkgname)
 
     ddir = env.GetOption("data_dir")
     if ddir:
@@ -120,29 +137,22 @@ if not env.GetOption('clean') and not env.GetOption("help"):
         else:
             print """Warning: measures data directory given doesn't contain
             geodetic and ephemerides.
-            Using '%s' as default search location""" % ddir
+            Compiling in '%s' as default search location""" % ddir
             
             # Note the escaped single quotes to handle the string in the define
     else:
-        ddir = os.path.join(conf.env.GetOption("sharedir"),
+        shrdir = conf.env.GetOption("sharedir") or \
+            os.path.join(conf.env.GetOption("prefix"), "share")
+        ddir = os.path.join(shrdir,
                             "casacore", "data")
     env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
 #    env = conf.Finish()
-else:
-    env.Execute(Delete("options.cfg"))
 
-# to find package based includes
-env.Append(CPPPATH='#')
-
-for bopt in env["build"]:
-    # create an environment copy with the dbg/opt compiler flags
-    buildenv = env.BuildEnv(bopt)
-    # buildir name
-    buildenv["BUILDDIR"] = Dir("#/build_%s/%s" % (env.PlatformIdent(), bopt))
-    buildenv.PrependUnique(LIBPATH=[buildenv["BUILDDIR"]])    
-    env.SConscript("SConscript" , 
-		   build_dir= buildenv["BUILDDIR"],
-		   duplicate=0, exports=["buildenv", "installer"])
+# create an environment copy with the dbg/opt compiler flags
+buildenv = env.BuildEnv(env.GetOption("build_type"))
+env.SConscript("SConscript" , 
+               build_dir= buildenv["BUILDDIR"],
+               duplicate=0, exports=["buildenv", "installer"])
 
 # add the Tools to the casacore/share directory. This way they can be imported
 # by the other casacore packages without having to duplicate them.
