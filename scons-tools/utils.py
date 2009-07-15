@@ -109,13 +109,15 @@ def generate(env):
     def CheckFortran(conf):  
         def getf2clib(fc):
             fdict = {'gfortran': 'gfortran', 'g77': 'g2c', 'f77': 'f2c'}
-            return fdict[fc]
+            for k,v in fdict.items():
+                if fc.startswith(k):
+                    return v
         
 	if not conf.env.has_key("FORTRAN"):
 	    # auto-detect fortran
 	    detect_fortran = conf.env.Detect(['gfortran', 'g77', 'f77'])
 	    conf.env["FORTRAN"] = detect_fortran
-        f2clib = conf.env.get("f2clib", getf2clib(conf.env["FORTRAN"]))
+        f2clib = conf.env.get("f2c_lib", getf2clib(conf.env["FORTRAN"]))
         conf.env["F2CLIB"] = [f2clib]
 	if conf.env["FORTRAN"].startswith("g77"):
             fflags = ["-Wno-globals", "-fno-second-underscore"]
