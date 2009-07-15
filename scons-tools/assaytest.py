@@ -7,16 +7,16 @@ import subprocess
 
 def copy_dir(src, dst):
     dirname = os.path.basename(os.path.normpath(src))
-    dstdir = os.path.join(dst, dirname)
-
     for dp, dn, fn in os.walk(src):
         if ".svn" in dn: 
             dn.remove(".svn")
         dp1 = dp[dp.find(dirname):]
-        if not os.path.exists(os.path.join(dst,dp1)):
-            os.mkdir(os.path.join(dst,dp1))
+        ddir = os.path.join(dst, dp1)
+        if not os.path.exists(ddir):
+            os.mkdir(ddir)
+            os.chmod(ddir, 0755)
         for f in fn:
-            shutil.copy(os.path.join(dp, f), os.path.join(dst,dp1))
+            shutil.copy(os.path.join(dp, f), ddir)
 
 def add_ldpath(env):
     envvar = env.get("LIBPATH", [])
