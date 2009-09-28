@@ -41,7 +41,7 @@
     }
 #  endif
 #  define statfs statvfs
-#elif defined(AIPS_DARWIN)
+#elif defined(AIPS_DARWIN) || defined(AIPS_BSD)
 #include <sys/param.h>
 #include <sys/mount.h>
 #else
