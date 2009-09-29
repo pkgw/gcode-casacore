@@ -3,6 +3,6 @@ import os, glob
 # import root environment
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
-
+myenv["ASSAYAUX"] = myenv.SGlob("*/test/*.words")
 myenv.CasaBuilder(installer=installer)
 
