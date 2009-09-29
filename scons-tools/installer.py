@@ -58,7 +58,6 @@ def generate(env):
             self._sharedir = env.GetOption( SHAREDIR ) \
                            or os.path.join(self._prefix, "share")
             env.Alias( "install", env.Dir(self._bindir) )
-            print env.Dir(self._libdir )
             env.Alias( "install", env.Dir(self._libdir ) )
             env.Alias( "install", env.Dir(self._includedir ) )
             env.Alias( "install", env.Dir(self._sharedir ) )
