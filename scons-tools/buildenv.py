@@ -22,13 +22,13 @@ def AppsBuilder(env, installer=None):
         installer.AddProgram(tapp)
         # fix this to work with multiple files or if it doesn't exists
         installer.AddProgram(str(tapp[0])+".csh")
-    
 
-def CasaBuilder(env, target=None, source="*.cc", installer=None, 
+
+def CasaBuilder(env, target=None, source="*.cc", installer=None,
                 tests=True, test_libs=[]):
     if target is None:
         target = os.path.split(os.path.abspath("."))[-1]
-    
+
     myenv = env.Clone()
     builddir = str(myenv["BUILDDIR"])
 
@@ -64,11 +64,11 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
 
     rootdir = myenv.Dir("#").abspath
     # install headers, only works with absolute dir.
-    installer.AddHeaders( rootdir+"/%s" % target, "*.h", 
+    installer.AddHeaders( rootdir+"/%s" % target, "*.h",
                           "casacore/%s" % target, True )
-    installer.AddHeaders( rootdir+"/%s" % target , "*.tcc", 
+    installer.AddHeaders( rootdir+"/%s" % target , "*.tcc",
                           "casacore/%s" % target, True )
-    
+
     if tests:
         testenv = myenv.Clone()
         testenv.PrependUnique(LIBPATH=[os.path.join(builddir, target)])
@@ -80,24 +80,24 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
         testenv.PrependUnique(LIBS=[libname]+test_libs)
         for t in tests:
             testenv.addAssayTest(t, alias='test_'+target)
-        
+
 
 def generate(env):
     def BuildEnv(buildtype):
-	lenv = env.Clone()
+        lenv = env.Clone()
         # to find package based includes
         lenv.AppendUnique(CPPPATH=['#'])
         lenv.AppendUnique(CPPFLAGS=["-Wall"])
-	if buildtype == "dbg":
-	    lenv.AppendUnique(CPPFLAGS=["-g"])
-	elif buildtype == "opt":
-	    lenv.AppendUnique(CPPFLAGS=["-O2"])
-	    lenv.AppendUnique(FORTRANFLAGS=["-O2"])	    
+        if buildtype == "dbg":
+            lenv.AppendUnique(CPPFLAGS=["-g"])
+        elif buildtype == "opt":
+            lenv.AppendUnique(CPPFLAGS=["-O2"])
+            lenv.AppendUnique(FORTRANFLAGS=["-O2"])
         # buildir name
-        lenv["BUILDDIR"] = env.Dir("#/build_%s/%s" % (env.PlatformIdent(), 
+        lenv["BUILDDIR"] = env.Dir("#/build_%s/%s" % (env.PlatformIdent(),
                                                       buildtype))
         lenv.PrependUnique(LIBPATH=[lenv["BUILDDIR"]])
-	return lenv
+        return lenv
     env.BuildEnv = BuildEnv
 
     env.AddMethod(CasaBuilder)
