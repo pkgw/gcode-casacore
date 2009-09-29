@@ -33,7 +33,7 @@
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-#ifdef HAVE_LIBHDF5
+#ifdef HAVE_HDF5
 
   HDF5File::HDF5File (const String& name,
 		      ByteIO::OpenOption option)
@@ -42,7 +42,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     // Disable automatic printing of errors.
     H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
-    setName (name);
+    // Use absolute expanded path name.
+    setName (Path(name).absoluteName());
     doOpen();
   }
 

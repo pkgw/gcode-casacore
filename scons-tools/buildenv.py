@@ -19,9 +19,12 @@ def AppsBuilder(env, installer=None):
         tdir = os.path.split(i)[0]
         tapp = myenv.Program(source=i, CPPPATH=cpppath+[tdir])
         myenv.Alias(pkgdir, tapp)
+        myenv.Default(tapp)
         installer.AddProgram(tapp)
         # fix this to work with multiple files or if it doesn't exists
-        installer.AddProgram(str(tapp[0])+".csh")
+        prg = str(tapp[0])+".csh"
+        if os.path.exists(prg):
+            installer.AddProgram(prg)
 
 
 def CasaBuilder(env, target=None, source="*.cc", installer=None,

@@ -222,7 +222,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ios << "ConcatTable";
       ios.putstart ("ConcatTable", 0);
       // Make the name of the base tables relative to this table.
-      ios << baseTabPtr_p.nelements();
+      ios << uInt(baseTabPtr_p.nelements());
       for (uInt i=0; i<baseTabPtr_p.nelements(); ++i) {
 	ios << Path::stripDirectory (baseTabPtr_p[i]->tableName(),
 				     tableName());
@@ -452,6 +452,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void ConcatTable::renameColumn (const String&, const String&)
   {
     throw TableInvOper("ConcatTable cannot rename columns");
+  }
+
+  void ConcatTable::renameHypercolumn (const String&, const String&)
+  {
+    throw TableInvOper("ConcatTable cannot rename hypercolumns");
   }
 
 

@@ -6188,7 +6188,7 @@ ImageAnalysis::singleParameterEstimate (Fit2D& fitter, Fit2D::Types model,
 	parameters(1) = Double(maxPos(0));                     // x cen
 	parameters(2) = Double(maxPos(1));                     // y cen
       }
-      parameters(3) = Double(max(shape(0), shape(1)) / 2);     // major axis
+      parameters(3) = Double(std::max(shape(0), shape(1)) / 2);// major axis
       parameters(4) = 0.9*parameters(3);                       // minor axis
       parameters(5) = 0.0;                                     // position angle
     } else if (parameters.nelements()!=6) {
