@@ -47,7 +47,7 @@ def generate(env):
             @param configuration A dictionary containing the configuration.
             @param env The installation environment.
             """
-            self._prefix = env.GetOption( PREFIX )
+            self._prefix = os.path.abspath(os.path.expanduser(os.path.expandvars(env.GetOption( PREFIX ))))
             self._eprefix = env.GetOption( EPREFIX )
             self._bindir = env.GetOption( BINDIR ) \
                            or os.path.join(self._prefix, "bin")
@@ -58,6 +58,7 @@ def generate(env):
             self._sharedir = env.GetOption( SHAREDIR ) \
                            or os.path.join(self._prefix, "share")
             env.Alias( "install", env.Dir(self._bindir) )
+            print env.Dir(self._libdir )
             env.Alias( "install", env.Dir(self._libdir ) )
             env.Alias( "install", env.Dir(self._includedir ) )
             env.Alias( "install", env.Dir(self._sharedir ) )

@@ -156,7 +156,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     # Measures data directory
     ddir = env.GetOption("data_dir")
     if ddir:
-        adir = os.path.expanduser(os.path.expandvars(ddir))
+        adir = os.path.abspath(os.path.expanduser(os.path.expandvars(ddir)))
         if os.path.exists(adir) \
                and os.path.exists(os.path.join(adir, 'ephemerides')) \
                and os.path.exists(os.path.join(adir, 'geodetic')):
@@ -169,8 +169,10 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     else:
         shrdir = conf.env.GetOption("sharedir") or \
             os.path.join(conf.env.GetOption("prefix"), "share")
+        ddir = os.path.abspath(os.path.expanduser(os.path.expandvars(shrdir)))
         ddir = os.path.join(shrdir, "casacore", "data")
     # Note the escaped single quotes to handle the string in the define
+    ddir = os.path.abspath(os.path.expanduser(os.path.expandvars(ddir)))
     env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
 
 
