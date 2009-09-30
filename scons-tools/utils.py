@@ -79,6 +79,23 @@ def generate(env):
     env.PlatformIdent = PlatformIdent
 
     def AddFlags():
+
+        # add extra Hierachy
+        hier = env.get("extra_root", None)
+        if hier is not None:
+            hier = os.path.expandvars(os.path.expanduser(hier))
+            incdir = os.path.join(hier, 'include')
+            env.MergeFlags("-I"+incdir)
+            libdir = os.path.join(hier, 'lib')
+            ldname = sys.platform == "darwin" and "DYLD_LIBRARY_PATH" or \
+                "LD_LIBRARY_PATH"
+            env.PrependENVPath(ldname, [libdir])
+
+            # maybe also lib64
+            env.MergeFlags("-L"+libdir)
+            bindir = os.path.join(hier, 'bin')
+            env.PrependENVPath("PATH", [bindir])
+
         env.MergeFlags(env.get("extra_cppflags", None))
         env.MergeFlags(env.get("extra_cxxflags", None))
         env.MergeFlags(env.get("extra_cflags", None))
@@ -98,10 +115,10 @@ def generate(env):
         if xf:
             ldname = sys.platform == "darwin" and "DYLD_LIBRARY_PATH" or \
                 "LD_LIBRARY_PATH"
-            env.AppendENVPath(ldname, _to_list(xf))
+            env.PrependENVPath(ldname, _to_list(xf))
         xf=env.get("extra_path", None)
         if xf:
-            env.AppendENVPath("PATH", _to_list(xf))
+            env.PrependENVPath("PATH", _to_list(xf))
     # set the extra flags where available
     AddFlags()
 
