@@ -571,10 +571,13 @@ class String : public string {
     return String(*this, pos, n); }
 
 
-  // convert a string to a Double. If the specified string does not represent
-  // a Double, 0 (or something very close because of finite precision) is
-  // returned.
+  // Convert a string to a Double. If the specified string does not represent
+  // a Double, 0 is returned.
   static Double toDouble(const String& string);
+
+  // Convert a string to a Float. If the specified string does not represent
+  // a Float, 0 is returned.
+  static Float toFloat(const String& string);
 
   // Search functions. Returns either npos (if not found); else position.
   // <note role=warning> The RegexBase ones are ** aips++ additions</note>
