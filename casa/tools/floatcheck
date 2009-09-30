@@ -77,8 +77,6 @@ def main(argv=None):
     num2 = []
     # Compare res1 and res2 for equality.
     # Mismatching numbers are kept and compared later.
-    print len(res1), res1
-    print len(res2), res2
     if len(res1) != len(res2):
         return 1      # mismatch
     for i in range(len(res1)):
@@ -90,7 +88,6 @@ def main(argv=None):
 
     # Now compare if numbers are more or less equal.
     for i in range(len(num1)):
-        print num1[i], num2[i]
         val1 = float(num1[i])
         val2 = float(num2[i])
         if not near(val1, val2, tol):

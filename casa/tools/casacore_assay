@@ -177,17 +177,18 @@ EOF
      exit
   fi
   # Not fully equal. Check with floating point accuracy.
-  stat=floatcheck ${1}_tmp.out ${1}_tmpo.out 1e-5
+  floatcheck ${1}_tmp.out ${1}_tmpo.out 1e-5
+  stat=$?
   case $stat in
   0)
      echo "PASS (floating point discrepancies <= 1e-5): $1"
      ;;
   1)
-     echo "FAIL (output not verified): $*"
+     echo "FAIL (output not verifie): $*"
      ;;
   *)
      echo "FAIL (floating point discrepancies > 1e-5): $1"
      ;;
   esac
-  STATUS=stat
+  STATUS=$stat
   exit
