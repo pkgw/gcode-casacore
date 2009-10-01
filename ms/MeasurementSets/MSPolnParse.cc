@@ -106,7 +106,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //------------------------------------------------------------------------------
   //  
   Vector<Int> MSPolnParse::getMapToDDIDs(MSDataDescIndex& msDDNdx, 
-					 MSPolarizationIndex& msPolNdx,
+					 MSPolarizationIndex& /*msPolNdx*/,
 					 const Vector<Int>& spwIDs, 
 					 Vector<Int>& polnIDs,
 					 Vector<Int>& polnIndices)
@@ -229,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //  i.e. "RR", "LL" etc.
   //
   Vector<Int> MSPolnParse::matchPolIDsToPolTableRow(const Vector<Int>& polIds,
-						    OrderedMap<Int, Vector<Int> >& polIndexMap,
+						    OrderedMap<Int, Vector<Int> >& /*polIndexMap*/,
 						    Vector<Int>& polIndices,
 						    Bool addToMap)
   {
@@ -254,7 +254,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	// "LL".
 	//
 	Bool allFound=False;
-	Int foundCounter=0;
+	uInt foundCounter=0;
 	//	Vector<Int> polIndices(0,-1);
 	for(uInt i=0; i<polIds.nelements(); i++)
 	  {
@@ -269,7 +269,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 	  }
 
-	if (allFound=(foundCounter == polIds.nelements()))
+	if ((allFound=(foundCounter == polIds.nelements())))
 	  {
 	    if (addToMap) setIDLists((Int)row,0,polIndices);
 	  }
@@ -377,7 +377,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Vector<Int> polnIDs;
 
 	String s(":"), spwExpr, polnExpr;
-	Int nSpw, nCorr, nTokens;
+	Int nSpw, nTokens;
 	//
 	// User suppport: Check if they tried [SPW:CHAN:]POLN kind of
 	// specification.  Darn - String::freq(...) does not work!
