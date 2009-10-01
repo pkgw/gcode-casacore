@@ -42,7 +42,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     # but use autoadd=0 for all CheckLibs
 
     # DL
-    if not conf.env.GetOption("disable_dl"):
+    if not conf.env.get("disable_dl"):
         pkgname = "dl"
         libname = env.get(pkgname+"_lib")
         conf.env.AddCustomPackage(pkgname)
