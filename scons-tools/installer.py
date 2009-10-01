@@ -16,28 +16,6 @@ LIBDIR = "libdir"
 INCLUDEDIR = "includedir"
 SHAREDIR = "sharedir"
 
-def AddOptions():
-    """ Adds the installer command-line options"""
-    defdir = "/usr/local"
-    
-    AddOption("--"+PREFIX, dest=PREFIX,
-              type="string", default=defdir, 
-              help="The installation prefix (default: %s)" % defdir)
-    AddOption("--"+EPREFIX, dest=EPREFIX,
-              type="string", default=defdir)
-    AddOption("--"+BINDIR, dest=BINDIR,
-              type="string", default=None, 
-              help="The installation bin directory (default: %s/bin)" % defdir)
-    AddOption("--"+LIBDIR, dest=LIBDIR,
-              type="string", default=None, 
-              help="The installation lib directory (default: %s/lib)" % defdir)
-    AddOption("--"+INCLUDEDIR, dest=INCLUDEDIR,
-              type="string", default=None, 
-              help="The installation include directory (default: %s/include)" % defdir)
-    AddOption("--"+SHAREDIR, dest=SHAREDIR,
-              type="string", default=None, 
-              help="The installation share directory (default: %s/share)" % defdir)
-
 def generate(env):
     class Installer:
         """ A basic installer. """
@@ -47,15 +25,15 @@ def generate(env):
             @param configuration A dictionary containing the configuration.
             @param env The installation environment.
             """
-            self._prefix = os.path.abspath(os.path.expanduser(os.path.expandvars(env.GetOption( PREFIX ))))
-            self._eprefix = env.GetOption( EPREFIX )
-            self._bindir = env.GetOption( BINDIR ) \
+            self._prefix = os.path.abspath(os.path.expanduser(os.path.expandvars(env.get(PREFIX))))
+
+            self._bindir = env.get(BINDIR) \
                            or os.path.join(self._prefix, "bin")
-            self._libdir = env.GetOption( LIBDIR ) \
+            self._libdir = env.get( LIBDIR ) \
                            or os.path.join(self._prefix, "lib")
-            self._includedir = env.GetOption( INCLUDEDIR ) \
+            self._includedir = env.get( INCLUDEDIR ) \
                            or os.path.join(self._prefix, "include")
-            self._sharedir = env.GetOption( SHAREDIR ) \
+            self._sharedir = env.get( SHAREDIR ) \
                            or os.path.join(self._prefix, "share")
             env.Alias( "install", env.Dir(self._bindir) )
             env.Alias( "install", env.Dir(self._libdir ) )
@@ -127,7 +105,6 @@ def generate(env):
 					 os.path.join( basedir, entry ),
 					 recursive )
     env.Installer = Installer
-    AddOptions()
 
 def exists(env):
     return True

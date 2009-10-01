@@ -54,12 +54,12 @@ def CasaBuilder(env, target=None, source="*.cc", installer=None,
 
     # dependencies ...
     myenv.PrependUnique(LIBS=myenv.GetDependencies(libname))
-    if not myenv.GetOption("disable_static"):
+    if not myenv.get("disable_static"):
         slib =  myenv.StaticLibrary(target = lib, source = [cpps])
         myenv.Alias(target, slib)
         installer.AddLibrary(slib)
 
-    if myenv.GetOption("enable_shared"):
+    if myenv.get("enable_shared"):
         dlib =  myenv.SharedLibrary(target = lib, source = [cpps])
         myenv.Alias(target, dlib)
         installer.AddLibrary(dlib)
@@ -90,7 +90,7 @@ def generate(env):
         lenv = env.Clone()
         # to find package based includes
         lenv.AppendUnique(CPPPATH=['#'])
-        lenv.AppendUnique(CPPFLAGS=["-Wall"])
+        lenv.AppendUnique(CPPFLAGS=["-W", "-Wall", "-Woverloaded-virtual"])
         if buildtype == "dbg":
             lenv.AppendUnique(CPPFLAGS=["-g"])
         elif buildtype == "opt":
