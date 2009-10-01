@@ -269,7 +269,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 	  }
 
-	if (allFound=(foundCounter == polIds.nelements()))
+	if ((allFound=(foundCounter == polIds.nelements())))
 	  {
 	    if (addToMap) setIDLists((Int)row,0,polIndices);
 	  }
