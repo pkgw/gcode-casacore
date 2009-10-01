@@ -155,7 +155,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
 
 
 # create an environment copy with the dbg/opt compiler flags
-buildenv = env.BuildEnv(env.GetOption("build_type"))
+buildenv = env.BuildEnv(env.get("build_type"))
 env.SConscript("SConscript" ,
                build_dir= buildenv["BUILDDIR"],
                duplicate=0, exports=["buildenv", "installer"])
