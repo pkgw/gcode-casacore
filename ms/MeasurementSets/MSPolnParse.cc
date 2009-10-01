@@ -47,33 +47,33 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   extern const char*           strpMSPolnGram;
   MSPolnParse::MSPolnParse ()
     : MSParse(),
-      node_p(0x0), 
+      node_p(),			      //      node_p(0x0), 
+      ddIDList_p(), 
       polMap_p(Vector<Int>(0)),
-      setupMap_p(Vector<Vector<Int> >(0)),
-      ddIDList_p()
+      setupMap_p(Vector<Vector<Int> >(0))
   {
-    if (MSPolnParse::node_p!=0x0) delete MSPolnParse::node_p;
-    MSPolnParse::node_p=0x0;
-    node_p = new TableExprNode();
+    // if (MSPolnParse::node_p!=0x0) delete MSPolnParse::node_p;
+    // MSPolnParse::node_p=0x0;
+    // node_p = new TableExprNode();
   }
   //# Constructor with given ms name.
   //------------------------------------------------------------------------------
   //  
   MSPolnParse::MSPolnParse (const MeasurementSet* ms)
     : MSParse(ms, "Pol"),
-      node_p(0x0), 
+      node_p(),			      //     node_p(0x0), 
+      ddIDList_p(), 
       polMap_p(Vector<Int>(0)),
-      setupMap_p(Vector<Vector<Int> >(0)),
-      ddIDList_p()
+      setupMap_p(Vector<Vector<Int> >(0))
   {
     ddIDList_p.resize(0);
-    if(MSPolnParse::node_p) delete MSPolnParse::node_p;
-    node_p = new TableExprNode();
+    // if(MSPolnParse::node_p) delete MSPolnParse::node_p;
+    // node_p = new TableExprNode();
   }
   //
   //------------------------------------------------------------------------------
   //  
-  const TableExprNode *MSPolnParse::selectFromIDList(const Vector<Int>& ddIDs)
+  const TableExprNode MSPolnParse::selectFromIDList(const Vector<Int>& ddIDs)
   {
     TableExprNode condition;
     if (ddIDs.nelements() > 0)
@@ -93,8 +93,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (condition.isNull()) 
       throw(MSSelectionPolnError(String("No match for the [SPW:]POLN specifications ")));
 
-    if(node_p->isNull()) *node_p = condition;
-    else                 *node_p = *node_p || condition;
+    // if(node_p->isNull()) *node_p = condition;
+    // else                 *node_p = *node_p || condition;
+    
+    // return node_p;
+    if(node_p.isNull()) node_p = condition;
+    else                node_p = node_p || condition;
     
     return node_p;
   }
@@ -102,7 +106,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //------------------------------------------------------------------------------
   //  
   Vector<Int> MSPolnParse::getMapToDDIDs(MSDataDescIndex& msDDNdx, 
-					 MSPolarizationIndex& /*msPolNdx*/,
+					 MSPolarizationIndex& msPolNdx,
 					 const Vector<Int>& spwIDs, 
 					 Vector<Int>& polnIDs,
 					 Vector<Int>& polnIndices)
@@ -225,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //  i.e. "RR", "LL" etc.
   //
   Vector<Int> MSPolnParse::matchPolIDsToPolTableRow(const Vector<Int>& polIds,
-						    OrderedMap<Int, Vector<Int> >& /*polIndexMap*/,
+						    OrderedMap<Int, Vector<Int> >& polIndexMap,
 						    Vector<Int>& polIndices,
 						    Bool addToMap)
   {
@@ -250,7 +254,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	// "LL".
 	//
 	Bool allFound=False;
-	uInt foundCounter=0;
+	Int foundCounter=0;
 	//	Vector<Int> polIndices(0,-1);
 	for(uInt i=0; i<polIds.nelements(); i++)
 	  {
@@ -265,10 +269,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 	  }
 
-	allFound=(foundCounter == polIds.nelements());
-	if (allFound)
+	if (allFound=(foundCounter == polIds.nelements()))
 	  {
 	    if (addToMap) setIDLists((Int)row,0,polIndices);
+	  }
+	if (allFound)
+	  {
 	    uInt n;
 	    rowList.resize((n=rowList.nelements())+1,True);
 	    rowList[n]=row;
@@ -371,7 +377,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Vector<Int> polnIDs;
 
 	String s(":"), spwExpr, polnExpr;
-	Int nSpw, nTokens;
+	Int nSpw, nCorr, nTokens;
 	//
 	// User suppport: Check if they tried [SPW:CHAN:]POLN kind of
 	// specification.  Darn - String::freq(...) does not work!
@@ -483,5 +489,5 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //
   //------------------------------------------------------------------------------
   //
-  const TableExprNode* MSPolnParse::node() { return node_p; }
+  const TableExprNode MSPolnParse::node() { return node_p; }
 } //# NAMESPACE CASA - END
