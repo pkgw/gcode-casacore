@@ -164,4 +164,4 @@ env.SConscript("SConscript" ,
 # by the other casacore packages without having to duplicate them.
 installer.AddShares("scons-tools", "*.py", "casacore/", True)
 installer.AddShares("scons-tools", "casacore_assay", "casacore/")
-installer.AddShares("scons-tools", "floatcheck.sh", "casacore/")
+installer.AddShares("scons-tools", "floatcheck", "casacore/")
