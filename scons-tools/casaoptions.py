@@ -129,12 +129,12 @@ def generate(env):
                   type="string", default=None, 
                   help="The installation share directory (default: %s/share)" % defdir)
         
-        env.CLOptions.update('options.cache')
         opt = ("universal", None, 
                "Create universal build using any of: ppc,i386,ppc64,x86_64")
         if sys.platform == 'darwin':
             env.CLOptions.add_str_option(*opt) # ppc i386 ppc64 x86_64
 
+        env.CLOptions.update('options.cache')
 
     AddCommandLineOptions()
 
