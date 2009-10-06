@@ -90,6 +90,7 @@ def generate(env):
                    ("extra-includedir", None, "Extra 'include' dir(s)"),
                    ("extra-librarydir", None, "Extra 'lib' dir(s)"),
                    ("extra-ldlibrarypath", None, "Extra (DY)LD_LIBRARY_PATH"),
+                   ("extra-libs", None, "Extra libraries for linker"),
                    ("extra-path", None, "Extra PATH (bin) to search"),
                    ("extra-root", None, "Extra hierachy root to search")]
         for opt in options:

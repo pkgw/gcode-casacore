@@ -102,6 +102,9 @@ def generate(env):
         env.MergeFlags(env.get("extra_includedir", None))
         env.MergeFlags(env.get("extra_librarydir", None))
 
+        xf=env.get("extra_libs", None)
+        if xf:
+            env.AppendUnique(LIBS=_to_list(xf))
         # need to add it to both
         linkf = env.ParseFlags(env.get("extra_linkflags", None))['LINKFLAGS']
         env.AppendUnique(LINKFLAGS=linkf)
