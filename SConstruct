@@ -41,6 +41,13 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     # Add all packages explicitly to 'env'
     # but use autoadd=0 for all CheckLibs
 
+
+    # FreeBSD needs libkvm for casa/OS/HostInfo
+    if sys.platform.startswith("freebsd"):
+        if conf.CheckLib("kvm", autoadd=0):
+            env.AppendUnique(LIBS=["kvm"])
+        else:
+            env.Exit(1)
     # DL
     if not conf.env.get("disable_dl"):
         pkgname = "dl"
