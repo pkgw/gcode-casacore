@@ -89,7 +89,7 @@ def generate(env):
     def BuildEnv(buildtype):
         lenv = env.Clone()
         # to find package based includes
-        lenv.AppendUnique(CPPPATH=['#'])
+        lenv.PrependUnique(CPPPATH=['#'])
         lenv.AppendUnique(CPPFLAGS=["-W", "-Wall", "-Woverloaded-virtual"])
         if buildtype == "dbg":
             lenv.AppendUnique(CPPFLAGS=["-g"])
