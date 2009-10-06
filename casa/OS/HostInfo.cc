@@ -209,6 +209,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 HOSTINFO_IMPLEMENT_MEMBERS
 } //# NAMESPACE CASA - END
 
+#elif defined(AIPS_BSD)
+#include <casa/OS/HostInfoBsd.h>
+namespace casa { //# NAMESPACE CASA - BEGIN
+
+HOSTINFO_IMPLEMENT_MEMBERS
+} //# NAMESPACE CASA - END
+ 
 #else
 namespace casa { //# NAMESPACE CASA - BEGIN
 

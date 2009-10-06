@@ -63,8 +63,8 @@ int main()
     Double now = HostInfo::secondsFrom1970();
     sleep(5);
     Double diff = HostInfo::secondsFrom1970() - now;
-    // Assume granularity could be as bad as 100ms
-    AlwaysAssertExit(diff >= 4.9 && diff <= 5.1);
+    // Assume granularity could be as bad as 200ms
+    AlwaysAssertExit(diff >= 4.8 && diff <= 5.2);
 
     // No good way to test hostName, other than using the same library call
     // that hostName is built upon!
