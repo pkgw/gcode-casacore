@@ -170,7 +170,7 @@ EOF
 
 # Compare with the expected output.
   cat "$CAT" | sed -e '/^>>>/,/^<<</d' > ${1}_tmpo.out
-  if diff ${1}_tmp.out ${1}_tmpo.out
+  if diff ${1}_tmp.out ${1}_tmpo.out > ${1}_tmpd.out
   then
      echo "PASS (output verified): $*"
      STATUS=0
@@ -184,9 +184,11 @@ EOF
      echo "PASS (floating point discrepancies <= 1e-5): $1"
      ;;
   1)
-     echo "FAIL (output not verifie): $*"
+     cat ${1}_tmpd.out
+     echo "FAIL (output not verified): $*"
      ;;
   *)
+     cat ${1}_tmpd.out
      echo "FAIL (floating point discrepancies > 1e-5): $1"
      ;;
   esac
