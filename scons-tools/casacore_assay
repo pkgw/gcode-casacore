@@ -184,7 +184,7 @@ EOF
      echo "PASS (floating point discrepancies <= 1e-5): $1"
      ;;
   1)
-     echo "FAIL (output not verifie): $*"
+     echo "FAIL (output not verified): $*"
      ;;
   *)
      echo "FAIL (floating point discrepancies > 1e-5): $1"
