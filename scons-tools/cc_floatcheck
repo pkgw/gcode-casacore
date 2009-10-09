@@ -47,10 +47,9 @@ def splitfile (filename, regexp):
     return res;
 
 def near (val1, val2, tol):
-    if val1 == 0:
-        return abs(val2) <= (1+tol)*1e-30
-    if val2 == 0:
-        return abs(val1) <= (1+tol)*1e-30
+    # ok if both close to zero.
+    if abs(val1) <= tol*1e-10  and  abs(val2) <= tol*1e-10:
+        return True;
     if (val1>0) != (val2>0):
         return False
     return abs(val1-val2) <= tol*max(abs(val1),abs(val2))
