@@ -6,9 +6,13 @@ well.
 """
 
 import fnmatch, os, os.path
+import platform
 import SCons.Defaults
 from SCons.Script import AddOption
 
+ARCHLIBDIR='lib'
+if platform.architecture()[0].startswith("64"):
+    ARCHLIBDIR += '64'
 PREFIX = "prefix"
 EPREFIX = "eprefix"
 BINDIR = "bindir"
@@ -30,7 +34,7 @@ def generate(env):
             self._bindir = env.get(BINDIR) \
                            or os.path.join(self._prefix, "bin")
             self._libdir = env.get( LIBDIR ) \
-                           or os.path.join(self._prefix, "lib")
+                           or os.path.join(self._prefix, ARCHLIBDIR)
             self._includedir = env.get( INCLUDEDIR ) \
                            or os.path.join(self._prefix, "include")
             self._sharedir = env.get( SHAREDIR ) \

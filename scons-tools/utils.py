@@ -4,6 +4,10 @@ import glob
 import re
 import platform
 
+ARCHLIBDIR='lib'
+if platform.architecture()[0].startswith("64"):
+    ARCHLIBDIR += '64'
+
 def _to_list(xf):
     if xf.count(","):
         return xf.split(",")
@@ -37,7 +41,7 @@ def generate(env):
         if path is None or not os.path.exists(path):
             env.Exit(1)
         env.PrependUnique(CPPPATH = [os.path.join(path, "include")])
-        env.PrependUnique(LIBPATH = [os.path.join(path, "lib")])
+        env.PrependUnique(LIBPATH = [os.path.join(path, ARCHLIBDIR)])
     env.AddCustomPath = AddCustomPath
 
     def AddCustomPackage(pkgname=None):
@@ -49,9 +53,11 @@ def generate(env):
         pkglibd = env.get("%s_libdir" % pkgname)
 	incd = None
 	libd = None
+        if pkgroot == "/usr":
+            return
 	if pkgroot is not None:
 	    incd = os.path.join(pkgroot, "include")
-	    libd = os.path.join(pkgroot, "lib")
+	    libd = os.path.join(pkgroot, ARCHLIBDIR)
 	else:	    
 	    if pkgincd is not None:
 		incd = pkgincd
@@ -86,7 +92,7 @@ def generate(env):
             hier = os.path.expandvars(os.path.expanduser(hier))
             incdir = os.path.join(hier, 'include')
             env.MergeFlags("-I"+incdir)
-            libdir = os.path.join(hier, 'lib')
+            libdir = os.path.join(hier, ARCHLIBDIR)
             ldname = sys.platform == "darwin" and "DYLD_LIBRARY_PATH" or \
                 "LD_LIBRARY_PATH"
             env.PrependENVPath(ldname, [libdir])
