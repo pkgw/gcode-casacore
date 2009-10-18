@@ -5,6 +5,10 @@ import re
 import string
 import platform
 
+ARCHLIBDIR='lib'
+if platform.architecture()[0].startswith("64"):
+    ARCHLIBDIR += '64'
+
 def generate(env):
 
     def SGlob(pattern, excludedirs=[], recursive=False):
@@ -33,7 +37,7 @@ def generate(env):
         if path is None or not os.path.exists(path):
             env.Exit(1)
         env.PrependUnique(CPPPATH = [os.path.join(path, "include")])
-        env.PrependUnique(LIBPATH = [os.path.join(path, "lib")])
+        env.PrependUnique(LIBPATH = [os.path.join(path, ARCHLIBDIR)])
     env.AddCustomPath = AddCustomPath
 
     def AddCustomPackage(pkgname=None):
@@ -46,7 +50,7 @@ def generate(env):
 	libd = None
 	if pkgroot is not None:
 	    incd = os.path.join(pkgroot, "include")
-	    libd = os.path.join(pkgroot, "lib")
+	    libd = os.path.join(pkgroot, ARCHLIBDIR)
 	else:	    
 	    if pkgincd is not None:
 		incd = pkgincd

@@ -6,7 +6,12 @@ well.
 """
 
 import fnmatch, os, os.path
+import platform
 import SCons.Defaults
+
+ARCHLIBDIR='lib'
+if platform.architecture()[0].startswith("64"):
+    ARCHLIBDIR += '64'
 
 PREFIX = "prefix"
 EPREFIX = "eprefix"
@@ -20,7 +25,8 @@ def AddOptions( opts ):
         opts.Add( PREFIX, "Directory of architecture independant files.", "/usr/local" )
         opts.Add( EPREFIX, "Directory of architecture dependant files.", "${%s}" % PREFIX )
         opts.Add( BINDIR, "Directory of executables.", "${%s}/bin" % EPREFIX )
-        opts.Add( LIBDIR, "Directory of libraries.", "${%s}/lib" % EPREFIX )
+        opts.Add( LIBDIR, "Directory of libraries.", 
+                  "${%s}/%s" % (EPREFIX, ARCHLIBDIR) )
         opts.Add( INCLUDEDIR, "Directory of header files.", "${%s}/include" % PREFIX )
         opts.Add( SHAREDIR, "Directory of script files.", "${%s}/share" % PREFIX )
 
@@ -35,8 +41,11 @@ def generate(env):
 	        """
 	        self._prefix = env.get( PREFIX, "/usr/local" )
 	        self._eprefix = env.get( EPREFIX, self._prefix )
-	        self._bindir = env.get( BINDIR, os.path.join( self._eprefix, "bin" ) )
-	        self._libdir = env.get( LIBDIR, os.path.join( self._eprefix, "lib" ) )
+	        self._bindir = env.get( BINDIR, 
+                                        os.path.join( self._eprefix, "bin" ) )
+	        self._libdir = env.get( LIBDIR, 
+                                        os.path.join( self._eprefix, 
+                                                      ARCHLIBDIR ) )
 	        self._includedir = env.get( INCLUDEDIR, os.path.join( self._prefix, "include" ) )
 		self._sharedir = env.get( SHAREDIR, os.path.join( self._prefix, "share" ) )
 	        env.Alias( "install", env.Dir(self._bindir) )
