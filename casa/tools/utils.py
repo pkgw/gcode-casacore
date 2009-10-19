@@ -11,6 +11,8 @@ if platform.architecture()[0].startswith("64"):
 
 def generate(env):
 
+    env.ARCHLIBDIR = ARCHLIBDIR
+
     def SGlob(pattern, excludedirs=[], recursive=False):
 	# always exclude .svn
 	excludedirs.append(".svn")

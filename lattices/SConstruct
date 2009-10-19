@@ -37,8 +37,6 @@ env.SConsignFile()
 env["PACKAGE"] = PACKAGE
 
 # use directory from casacore/casa installation
-env["casaincdir"] = [os.path.join(env["casacoreroot"],"include","casacore")]
-env["casalibdir"] = [os.path.join(env["casacoreroot"],"lib")]
 env["casashrdir"] = [os.path.join(env["casacoreroot"],"share","casacore")]
 
 env.Tool('casaoptions', env["casashrdir"])
@@ -58,6 +56,9 @@ env.Tool('utils', env["casashrdir"])
 env.Tool('casa', env["casashrdir"])
 env.Tool('assaytest', env["casashrdir"])
 env["ASSAYCOM"] = os.path.join(env["casashrdir"][0], "casacore_assay")
+
+env["casaincdir"] = [os.path.join(env["casacoreroot"],"include","casacore")]
+env["casalibdir"] = [os.path.join(env["casacoreroot"],env.ARCHLIBDIR)]
 
 # Auto configure
 if not env.GetOption('clean'):

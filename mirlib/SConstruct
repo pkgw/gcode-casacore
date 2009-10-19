@@ -20,9 +20,8 @@ env.SConsignFile()
 env["PACKAGE"] = PACKAGE
 
 # use directory from casacore/casa installation
-env["casaincdir"] = [os.path.join(env["casacoreroot"],"include","casacore")]
-env["casalibdir"] = [os.path.join(env["casacoreroot"],"lib")]
 env["casashrdir"] = [os.path.join(env["casacoreroot"],"share","casacore")]
+env["casaincdir"] = [os.path.join(env["casacoreroot"],"include","casacore")]
 
 env.Tool('casaoptions', env["casashrdir"])
 # Add common options
@@ -38,6 +37,8 @@ Help( opts.GenerateHelpText( env ) )
 env.Tool('buildenv', env["casashrdir"])
 env.Tool('utils', env["casashrdir"])
 env.Tool('casa', env["casashrdir"])
+
+env["casalibdir"] = [os.path.join(env["casacoreroot"],env.ARCHLIBDIR)]
 
 if env.GetOption('clean'):
     Execute(Delete("options.cfg"))
