@@ -10,7 +10,8 @@ import platform
 import SCons.Defaults
 
 ARCHLIBDIR='lib'
-if platform.architecture()[0].startswith("64"):
+if if sys.platform.startswith('linux') \
+        and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 
 PREFIX = "prefix"
