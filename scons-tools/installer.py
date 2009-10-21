@@ -11,7 +11,8 @@ import SCons.Defaults
 from SCons.Script import AddOption
 
 ARCHLIBDIR='lib'
-if platform.architecture()[0].startswith("64"):
+if sys.platform.startswith('linux') \
+        and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 PREFIX = "prefix"
 EPREFIX = "eprefix"
@@ -39,8 +40,9 @@ def generate(env):
                            or os.path.join(self._prefix, "include")
             self._sharedir = env.get( SHAREDIR ) \
                            or os.path.join(self._prefix, "share")
+
             env.Alias( "install", env.Dir(self._bindir) )
-            env.Alias( "install", env.Dir(self._libdir ) )
+            env.Alias( "install", env.Dir(self._libdir) )
             env.Alias( "install", env.Dir(self._includedir ) )
             env.Alias( "install", env.Dir(self._sharedir ) )
             self._env = env

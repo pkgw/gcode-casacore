@@ -5,7 +5,8 @@ import re
 import platform
 
 ARCHLIBDIR='lib'
-if platform.architecture()[0].startswith("64"):
+if sys.platform.startswith('linux') \
+        and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 
 def _to_list(xf):
