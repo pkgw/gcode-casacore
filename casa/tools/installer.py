@@ -10,7 +10,7 @@ import platform
 import SCons.Defaults
 
 ARCHLIBDIR='lib'
-if if sys.platform.startswith('linux') \
+if sys.platform.startswith('linux') \
         and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 
