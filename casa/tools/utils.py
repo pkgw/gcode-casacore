@@ -6,7 +6,7 @@ import string
 import platform
 
 ARCHLIBDIR='lib'
-if if sys.platform.startswith('linux') \
+if platform.system().startswith('linux') \
         and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 

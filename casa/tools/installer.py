@@ -10,7 +10,7 @@ import platform
 import SCons.Defaults
 
 ARCHLIBDIR='lib'
-if sys.platform.startswith('linux') \
+if platform.system().startswith('linux') \
         and platform.architecture()[0].startswith("64"):
     ARCHLIBDIR += '64'
 
@@ -23,8 +23,8 @@ SHAREDIR = "sharedir"
 
 def AddOptions( opts ):
         """ Adds the installer options to the opts.  """
-        opts.Add( PREFIX, "Directory of architecture independant files.", "/usr/local" )
-        opts.Add( EPREFIX, "Directory of architecture dependant files.", "${%s}" % PREFIX )
+        opts.Add( PREFIX, "Directory of architecture independent files.", "/usr/local" )
+        opts.Add( EPREFIX, "Directory of architecture dependent files.", "${%s}" % PREFIX )
         opts.Add( BINDIR, "Directory of executables.", "${%s}/bin" % EPREFIX )
         opts.Add( LIBDIR, "Directory of libraries.", 
                   "${%s}/%s" % (EPREFIX, ARCHLIBDIR) )
