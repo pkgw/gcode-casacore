@@ -7,6 +7,7 @@ DEPS = ["casa"]
 
 # general options
 opts = Variables( 'options.cfg', ARGUMENTS )
+opts.Add(BoolVariable("enable_readline", "Enable readline support", False))
 opts.Add(PathVariable("casacoreroot", "The location of casacore/casa",
 		    "/usr/local"))
 opts.Add(("hdf5root", 
@@ -60,6 +61,11 @@ if not env.GetOption('clean'):
     else:
         print "Building without HDF5 support"
 
+    if conf.env.get("enable_readline") and \
+             conf.CheckLib('readline', autoadd=0):
+        conf.env.AppendUnique(CPPFLAGS=["-DHAVE_READLINE"])
+        conf.env.PrependUnique(LIBS=['readline'])
+
     if not conf.CheckLib("dl"): Exit(1)
     conf.env.PrependUnique(LIBS=['dl'])
     env = conf.Finish()
@@ -79,8 +85,15 @@ for dep in DEPS:
 for bopt in env["build"]:
     # create an environment copy with teh dbg/opt compiler flags
     buildenv = env.BuildEnv(bopt)
+    buildenv["buildtype"] = bopt
     # buildir name
     buildenv["BUILDDIR"] = Dir("#/build_%s/%s" % (env.PlatformIdent(), bopt))
+    buildenv["BUILDDIR_APPS"] = Dir("#/build_%s/%s/%s" % (env.PlatformIdent(), 
+						      bopt, "apps"))
+
     env.SConscript(["%s/SConscript" % env["PACKAGE"]], 
 		   build_dir= buildenv["BUILDDIR"],
 		   duplicate=0, exports=["buildenv", "installer"]) 
+    env.SConscript(["%s/SConscript" % "apps"],
+		   duplicate=0, exports=["buildenv", "installer"],
+		   build_dir=buildenv["BUILDDIR_APPS"])
