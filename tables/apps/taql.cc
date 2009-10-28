@@ -53,6 +53,10 @@ using namespace std;
 // Execute table commands from user interface
 // </summary>
 
+// Define the type for the map of name to (resulttable,command).
+typedef map<String, pair<Table,String> > TableMap;
+
+
 #ifdef HAVE_READLINE
 bool readLine (string& line, const string& prompt, bool addToHistory)
 {
@@ -310,18 +314,64 @@ void showHelp()
   cerr << endl;
 }
 
-String substituteName (const String& name, const map<String,Table>& tables,
+void showTableInfo (const String& name, const Table& tab,
+                    const String& command, Int level)
+{
+  TableDesc tdesc(tab.actualTableDesc());
+  cout << "  " << name << " resulted from:" << endl
+       << "    " << command << endl;
+  cout << "  " << tab.nrow() << " rows, "
+       << tdesc.ncolumn() << " columns" << endl;
+  if (level > 0) {
+    Vector<String> colNames = tdesc.columnNames();
+    cout << "    " << colNames << endl;
+    if (level > 1) {
+      genSort (colNames);
+      uInt maxLen = 0;
+      for (uInt i=0; i<colNames.size(); ++i) {
+        if (colNames[i].size() > maxLen) {
+          maxLen = colNames[i].size();
+        }
+      }
+      for (uInt i=0; i<colNames.size(); ++i) {
+        const ColumnDesc& cdesc = tdesc[colNames[i]];
+        cout << "    " << colNames[i];
+        for (uInt j=colNames[i].size(); j<maxLen; ++j) {
+          cout << ' ';
+        }
+        cout << ' ' << ValType::getTypeStr(cdesc.dataType());
+        if (cdesc.isScalar()) {
+          cout << " scalar";
+        } else if (cdesc.isArray()) {
+          cout << " array";
+          if (cdesc.ndim() > 0) {
+            cout << " ndim=" << cdesc.ndim();
+          }
+          if (! cdesc.shape().empty()) {
+            cout << " shape=" << cdesc.shape();
+          }
+        }
+        if (cdesc.comment().empty()) {
+          cout << "  " << cdesc.comment();
+        }
+        cout << endl;
+      }
+    }
+  }
+}
+
+String substituteName (const String& name, const TableMap& tables,
                        vector<const Table*>& tabs)
 {
-  map<String,Table>::const_iterator fnd = tables.find(name);
+  TableMap::const_iterator fnd = tables.find(name);
   if (fnd == tables.end()) {
     return name;
   }
-  tabs.push_back (&(fnd->second));
+  tabs.push_back (&(fnd->second.first));
   return String::toString (tabs.size());
 }
 
-vector<const Table*> replaceVars (String& str, const map<String,Table>& tables)
+vector<const Table*> replaceVars (String& str, const TableMap& tables)
 {
   vector<const Table*> tabs;
   // Initialize some variables.
@@ -385,7 +435,7 @@ void askCommands()
   Regex varassRE("^[a-zA-Z_][a-zA-Z0-9_]*[ \t]*=");
   Regex assRE("[ \t]*=");
   Regex whiteRE("^[ \t]*");
-  map<String,Table> tables;
+  TableMap tables;
   while (True) {
     String str;
     if (! readLineSkip (str, "TaQL> ", "#")) {
@@ -395,16 +445,13 @@ void askCommands()
     // Remove leading whitespace.
     str.del (whiteRE);
     if (str.empty()) {
-      cerr << "h or help gives help info" << endl;
+      cerr << "?, h, or help gives help info" << endl;
     } else {
-      if (str == "h"  ||  str == "help") {
+      if (str == "?"  ||  str == "h"  ||  str == "help") {
         showHelp();
       } else if (str == "exit"  ||  str == "quit"  ||  str == "q") {
         break;
       } else {
-#ifdef HAVE_READLINE
-        add_history (str.c_str());
-#endif
         try {
           String varName;
           String::size_type assLen = varassRE.match (str.c_str(), str.size());
@@ -421,19 +468,27 @@ void askCommands()
             // Remove variable.
             tables.erase (varName);
           } else {
-            map<String,Table>::const_iterator it = tables.find (str);
+            // The name can be followed by question marks giving the level of
+            // info to be printed.
+            Int sz = str.size();
+            while (sz > 0  &&  str[sz-1] == '?') {
+              --sz;
+            }
+            Int level = str.size() - sz;
+            String name = str.substr(0, sz);
+            TableMap::const_iterator it = tables.find (name);
             if (it != tables.end()) {
-              cout << "  " << str << " has " << it->second.nrow()
-                   << " rows" << endl;
+              showTableInfo (name, it->second.first, it->second.second, level);
             } else {
+              String command(str);
+              vector<const Table*> tabs = replaceVars (str, tables);
               if (!varName.empty()) {
                 cout << varName << " = ";
               }
-              cout << str << endl;
-              vector<const Table*> tabs = replaceVars (str, tables);
+              cout << command << endl;
               Table tab = doCommand (str, tabs);
               if (!varName.empty()  &&  !tab.isNull()) {
-                tables[varName] = tab;
+                tables[varName] = make_pair(tab, command);
               }
             }
           }
