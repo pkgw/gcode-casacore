@@ -40,6 +40,7 @@
 #include <map>
 #include <vector>
 #include <casa/iostream.h>
+#include <casa/iomanip.h>
 
 #ifdef HAVE_READLINE
 # include <readline/readline.h>
@@ -108,6 +109,49 @@ bool readLineSkip (String& line, const String& prompt,
   return fnd;
 }
 
+// Show a date/time. Do not show time part if 0.
+void showTime (const MVTime& time)
+{
+  Double val = time.day();
+  if (val == floor(val)) {
+    time.print (cout, MVTime::Format
+                (MVTime::formatTypes(MVTime::DMY | MVTime::NO_TIME)));
+  } else {
+    time.print (cout, MVTime::Format(MVTime::DMY, 9));
+  }
+}
+
+// Show an array of values enclosed in square brackets.
+// Omit square brackets if only one value.
+template<typename T>
+void showArray (const Array<T>& arr)
+{
+  if (arr.size() == 1) {
+    cout << arr.data()[0];
+  } else {
+    cout << arr;
+  }
+}
+template<> void showArray (const Array<MVTime>& arr)
+{
+  if (arr.size() == 1) {
+    showTime (arr.data()[0]);
+  } else {
+    Bool firstTime = True;
+    cout << '[';
+    Array<MVTime>::const_iterator endIter = arr.end();
+    for (Array<MVTime>::const_iterator iter= arr.begin();
+         iter != endIter; ++iter) {
+      if (!firstTime) {
+        cout << ", ";
+        firstTime = False;
+      }
+      showTime (*iter);
+    }
+    cout << ']';
+  }
+}
+
 // Show the required columns.
 // First test if they exist and contain scalars or arrays.
 void showTable (const Table& tab, const Vector<String>& colnam)
@@ -164,10 +208,9 @@ void showTable (const Table& tab, const Vector<String>& colnam)
   }
 }
 
-
 void showExpr(const TableExprNode& expr)
 {
-  // Print the index if possible.
+  // Print the array index if possible.
   // Get internal node.
   const TableExprNodeArrayPart* nodePtr =
                dynamic_cast<const TableExprNodeArrayPart*>(expr.getNodeRep());
@@ -189,76 +232,82 @@ void showExpr(const TableExprNode& expr)
   if (expr.isScalar()) {
     switch (expr.getColumnDataType()) {
     case TpBool:
-      cout << expr.getColumnBool();
+      showArray (expr.getColumnBool());
       break;
     case TpUChar:
-      cout << expr.getColumnuChar();
+      showArray (expr.getColumnuChar());
       break;
     case TpShort:
-      cout << expr.getColumnShort();
+      showArray (expr.getColumnShort());
       break;
     case TpUShort:
-      cout << expr.getColumnuShort();
+      showArray (expr.getColumnuShort());
       break;
     case TpInt:
-      cout << expr.getColumnInt();
+      showArray (expr.getColumnInt());
       break;
     case TpUInt:
-      cout << expr.getColumnuInt();
+      showArray (expr.getColumnuInt());
       break;
     case TpFloat:
-      cout << expr.getColumnFloat();
+      showArray (expr.getColumnFloat());
       break;
     case TpDouble:
-      cout << expr.getColumnDouble();
+      showArray (expr.getColumnDouble());
       break;
     case TpComplex:
-      cout << expr.getColumnComplex();
+      showArray (expr.getColumnComplex());
       break;
     case TpDComplex:
-      cout << expr.getColumnDComplex();
+      showArray (expr.getColumnDComplex());
       break;
     case TpString:
-      cout << expr.getColumnString();
+      showArray (expr.getColumnString());
       break;
     default:
-      cout << "Unknown expression scalar type " << expr.getColumnDataType();
+      if (expr.getNodeRep()->dataType() == TableExprNodeRep::NTDate) {
+        MVTime time;
+        if (expr.nrow() != 1) cout << '[';
+        for (uInt i=0; i<expr.nrow(); i++) {
+          if (i > 0) cout << ", ";
+          expr.get (i, time);
+          showTime (time);
+        }
+        if (expr.nrow() != 1) cout << ']';
+      } else {
+        cout << "Unknown expression scalar type " << expr.getColumnDataType();
+      }
     }
     cout << endl;
   } else {
     for (uInt i=0; i<expr.nrow(); i++) {
-      cout << "  row " << i << ":  ";
+      if (expr.nrow() > 1) {
+        cout << "  row " << i << ":  ";
+      }
       switch (expr.dataType()) {
       case TpBool:
-	{
-	  Array<Bool> arr;
-	  expr.get (i, arr);
-	  cout << arr;
-	  break;
-	}
+        showArray (expr.getArrayBool(i));
+        break;
+      case TpInt:
+        showArray (expr.getArrayInt(i));
+        break;
       case TpDouble:
-	{
-	  Array<Double> arr;
-	  expr.get (i, arr);
-	  cout << arr;
-	  break;
-	}
+        showArray (expr.getArrayDouble(i));
+        break;
       case TpDComplex:
-	{
-	  Array<DComplex> arr;
-	  expr.get (i, arr);
-	  cout << arr;
-	  break;
-	}
+        showArray (expr.getArrayDComplex(i));
+        break;
       case TpString:
-	{
-	  Array<String> arr;
-	  expr.get (i, arr);
-	  cout << arr;
-	  break;
-	}
+        showArray (expr.getArrayString(i));
+        break;
       default:
-	cout << "Unknown expression array type " << expr.dataType();
+        if (expr.getNodeRep()->dataType() == TableExprNodeRep::NTDate) {
+          Array<MVTime> arr;
+          expr.get (i, arr);
+          showArray (arr);
+        } else {
+          cout << "Unknown expression array type " << expr.dataType();
+        }
       }
       cout << endl;
     }
@@ -269,13 +318,34 @@ void showExpr(const TableExprNode& expr)
 // Sort and select data.
 Table doCommand (const String& str, const vector<const Table*>& tempTables)
 {
+  // If no command is given, assume it is CALC.
+  String::size_type spos = str.find_first_not_of (' ');
+  Bool addCalc = False;
+  if (spos != String::npos) {
+    String::size_type epos = str.find (' ', spos);
+    if (epos == String::npos) {
+      // single word (e.g. 1+2), so cannot contain a command name
+      addCalc = True;
+    } else {
+      String s = str.substr(spos, epos-spos);
+      s.downcase();
+      addCalc = !(s=="select" || s=="update" || s=="insert" || s=="calc" ||
+                  s=="delete" || s=="create" || s=="createtable" ||
+                  s=="count"  || s=="using"  || s=="usingstyle");
+    }
+  } 
+  String strc(str);
+  if (addCalc) {
+    strc = "CALC " + str;
+  }
   Table tabp;
   uInt i;
   Vector<String> colNames;
   String cmd;
   TaQLResult result;
-  result = tableCommand (str, tempTables, colNames, cmd);
+  result = tableCommand (strc, tempTables, colNames, cmd);
   cout << "    has been executed" << endl;
+  // Set default format for printing datetime.
   if (result.isTable()) {
     tabp = result.table();
     cout << "    " << cmd << " result of " << tabp.nrow()
@@ -300,17 +370,28 @@ Table doCommand (const String& str, const vector<const Table*>& tempTables)
 void showHelp()
 {
   cerr << endl;
-  cerr << "Any TaQL command can be given. TaQL is described at" << endl;
-  cerr << "  www.astron.nl/casacore/trunk/casacore/notes/199.html" << endl;
+  cerr << "TaQL is the query language for casacore tables and is described at"
+       << endl;
+  cerr << "  http://www.astron.nl/casacore/trunk/casacore/doc/notes/199.html"
+       << endl;
+  cerr << "Any TaQL command can be given." << endl;
   cerr << "The result of a CALC command and selected columns will be printed."
        << endl;
+  cerr << "If no command name is given, CALC is assumed" << endl;
+  cerr << "For example:" << endl;
+  cerr << "   mean([select EXPOSURE from my.ms])" << endl;
+  cerr << "   mjdtodate([select distinct TIME from my.ms])    print as dates"
+       << endl;
+  cerr << "   date() + 60     which date is 60 days after today" << endl;
   cerr << "For other commands the number of selected rows is printed." << endl;
   cerr << endl;
   cerr << "It is possible to save the table resulting from a selection" << endl;
   cerr << "by assigning it like:" << endl;
-  cerr << "     var = command" << endl;
-  cerr << "Thereafter var can be used in another TaQL command like:" << endl;
-  cerr << "     select from $var where ..." << endl;
+  cerr << "   var = taqlcommand" << endl;
+  cerr << "Thereafter var can be used as a table in another TaQL command like:"
+       << endl;
+  cerr << "   t1 = select from my.ms where ANTENNA1=1" << endl;
+  cerr << "   t2 = select from $t1 where ANTENNA2=2" << endl;
   cerr << endl;
 }
 
@@ -456,6 +537,7 @@ void askCommands()
           String varName;
           String::size_type assLen = varassRE.match (str.c_str(), str.size());
           if (assLen != String::npos) {
+            // Assignment to variable; get its name and remove from command.
             varName = str.before(assLen);
             str = str.from(assLen);
             varName.del (assRE);
@@ -465,10 +547,12 @@ void askCommands()
           }
           str.del (whiteRE);
           if (str.empty()) {
-            // Remove variable.
+            // No command means that the variable will be removed.
             tables.erase (varName);
           } else {
-            // The name can be followed by question marks giving the level of
+            // No assignment, so it is a name or a command.
+            // First try it as a name.
+            // A name can be followed by question marks giving the level of
             // info to be printed.
             Int sz = str.size();
             while (sz > 0  &&  str[sz-1] == '?') {
@@ -478,8 +562,11 @@ void askCommands()
             String name = str.substr(0, sz);
             TableMap::const_iterator it = tables.find (name);
             if (it != tables.end()) {
+              // It exists, so it must be a name.
               showTableInfo (name, it->second.first, it->second.second, level);
             } else {
+              // No name, so it must be a command.
+              // Note that CALC commands can omit CALC.
               String command(str);
               vector<const Table*> tabs = replaceVars (str, tables);
               if (!varName.empty()) {
@@ -488,6 +575,7 @@ void askCommands()
               cout << command << endl;
               Table tab = doCommand (str, tabs);
               if (!varName.empty()  &&  !tab.isNull()) {
+                // Keep the resulting table if a variable was given.
                 tables[varName] = make_pair(tab, command);
               }
             }
