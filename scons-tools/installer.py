@@ -4,7 +4,7 @@ This module defines a minimal installer for scons build scripts.  It is aimed
 at *nix like systems, but I guess it could easily be adapted to other ones as
 well.
 """
-
+import sys
 import fnmatch, os, os.path
 import platform
 import SCons.Defaults

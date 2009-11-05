@@ -67,6 +67,9 @@ def generate(env):
         env.CLOptions.add_option("--disable-dl", dest="disable_dl",
                                  action="store_true", default=False,
                                  help="Disable the use of dlopen")
+        env.CLOptions.add_option("--enable-readline", dest="enable_readline",
+                                 action="store_true", default=False,
+                                 help="Enable the readline library")
         env.CLOptions.add_option("--data-dir", dest="data_dir", default=None,
                                  action="store", type="string",
                                  help="The location of the measures data directory to compile in as the default search location")
@@ -76,6 +79,7 @@ def generate(env):
 
         env.CLOptions.add_pkg_option("hdf5")
         env.CLOptions.add_pkg_option("dl")
+        env.CLOptions.add_pkg_option("readline")
         env.CLOptions.add_pkg_option("blas")
         env.CLOptions.add_pkg_option("lapack")
         env.CLOptions.add_pkg_option("f2c", lib="gfortran")

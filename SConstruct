@@ -159,7 +159,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
     # Note the escaped single quotes to handle the string in the define
     ddir = os.path.abspath(os.path.expanduser(os.path.expandvars(ddir)))
     env["DATA_DIR"] = '-DCASADATA=\'"%s"\'' % ddir
-
+    conf.Finish()
 
 # create an environment copy with the dbg/opt compiler flags
 buildenv = env.BuildEnv(env.get("build_type"))
