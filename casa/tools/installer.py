@@ -9,10 +9,10 @@ import fnmatch, os, os.path
 import platform
 import SCons.Defaults
 
-ARCHLIBDIR='lib'
-if platform.system().lower().startswith('linux') \
-        and platform.architecture()[0].startswith("64"):
-    ARCHLIBDIR += '64'
+sys.path.insert(0, ".")
+import lib64linux
+ARCHLIBDIR=lib64linux.get_libdir()
+
 
 PREFIX = "prefix"
 EPREFIX = "eprefix"

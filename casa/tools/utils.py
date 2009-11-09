@@ -5,10 +5,10 @@ import re
 import string
 import platform
 
-ARCHLIBDIR='lib'
-if platform.system().lower().startswith('linux') \
-        and platform.architecture()[0].startswith("64"):
-    ARCHLIBDIR += '64'
+sys.path.insert(0, ".")
+import lib64linux
+
+ARCHLIBDIR=lib64linux.get_libdir()
 
 def generate(env):
 
