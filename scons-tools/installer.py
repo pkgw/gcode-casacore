@@ -10,10 +10,11 @@ import platform
 import SCons.Defaults
 from SCons.Script import AddOption
 
-ARCHLIBDIR='lib'
-if sys.platform.startswith('linux') \
-        and platform.architecture()[0].startswith("64"):
-    ARCHLIBDIR += '64'
+sys.path.insert(0, ".")
+import lib64linux
+
+ARCHLIBDIR=lib64linux.get_libdir()
+
 PREFIX = "prefix"
 EPREFIX = "eprefix"
 BINDIR = "bindir"
