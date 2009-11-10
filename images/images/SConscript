@@ -51,12 +51,13 @@ regtests = testenv.SGlob("Regions/test/*.cc")
 testenv.PrependUnique(LIBPATH=[testenv["BUILDDIR"]])
 # allow either linking against shared or static, static if both present
 testenv.PrependUnique(LIBS=slib)
-testenv2 = testenv.Clone()
+testenvnoaux = testenv.Clone()
 # add files necessary for testing which are not names tXYZ.*
 testenv["ASSAYAUX"] = testenv.SGlob("*/test/*.fits")
 testenv["ASSAYAUX"] += testenv.SGlob("*/test/*.im")
 map(testenv.addAssayTest, imtests)
-map(testenv2.addAssayTest, wnbttests)
+map(testenvnoaux.addAssayTest, wnbttests)
+map(testenvnoaux.addAssayTest, regtests)
 
 # install headers, only works with absolute dir.
 installer.AddHeaders( rootdir, "*.h", "casacore", True )
