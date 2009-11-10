@@ -46,6 +46,7 @@ testenv = myenv.Clone()
 # SGlob works in build dir, so only for cc files
 imtests = testenv.SGlob("Images/test/*.cc")
 wnbttests = testenv.SGlob("Wnbt/test/*.cc")
+regtests = testenv.SGlob("Regions/test/*.cc")
 # point to tests local includes
 testenv.PrependUnique(LIBPATH=[testenv["BUILDDIR"]])
 # allow either linking against shared or static, static if both present
@@ -55,7 +56,6 @@ testenv2 = testenv.Clone()
 testenv["ASSAYAUX"] = testenv.SGlob("*/test/*.fits")
 testenv["ASSAYAUX"] += testenv.SGlob("*/test/*.im")
 map(testenv.addAssayTest, imtests)
-
 map(testenv2.addAssayTest, wnbttests)
 
 # install headers, only works with absolute dir.
