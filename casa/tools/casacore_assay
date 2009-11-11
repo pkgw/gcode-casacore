@@ -177,7 +177,7 @@ EOF
      exit
   fi
   # Not fully equal. Check with floating point accuracy.
-  floatcheck ${1}_tmp.out ${1}_tmpo.out 1e-5
+  casacore_floatcheck ${1}_tmp.out ${1}_tmpo.out 1e-5
   stat=$?
   case $stat in
   0)
