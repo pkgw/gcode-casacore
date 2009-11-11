@@ -1,7 +1,7 @@
 import os
 import sys
 
-EnsureSConsVersion(1,1)
+EnsureSConsVersion(1,0)
 
 # Put the package name here, e.g. casa, tables
 PACKAGE="casa"
