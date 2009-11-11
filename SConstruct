@@ -119,7 +119,7 @@ if not env.GetOption('clean') and not env.GetOption("help"):
             # handle SuSE which puts header files in '/usr/include/libcfitsio0' ???
             suseincdir = '/usr/include/libcfitsio0'
             conf.env.PrependUnique(CPPPATH=[suseincdir])
-            if not conf.CheckHeader(os.path.join(suseincdir,"fitsio.h")):            
+            if not conf.CheckHeader(os.path.join(suseincdir,"fitsio.h")):
                 env.Exit(1)
             if not conf.CheckLib(cfitsioname, "c", autoadd=0):
                 env.Exit(1)
@@ -171,4 +171,4 @@ env.SConscript("SConscript" ,
 # by the other casacore packages without having to duplicate them.
 installer.AddShares("scons-tools", "*.py", "casacore/", True)
 installer.AddProgram("scons-tools/casacore_assay")
-installer.AddProgram("scons-tools/cc_floatcheck")
+installer.AddProgram("scons-tools/casacore_floatcheck")

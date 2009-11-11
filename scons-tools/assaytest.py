@@ -134,7 +134,8 @@ def addAssayTest(env, target=None, source=None, *args, **kwargs):
     if source.endswith(".py"):
         srcbase = source.replace(".py","")
         modelem = os.path.split(srcbase)
-        mod = env.LoadableModule(os.path.join(modelem[0], "_"+modelem[1]+".so"),
+        mod = env.LoadableModule(os.path.join(modelem[0],
+                                              "_"+modelem[1]+".so"),
                                  srcbase+".cc")
         env["ENV"]["PYTHONPATH"] = os.path.split(mod[0].abspath)[0]
         program = [env.File(srcbase+".py")]
