@@ -65,8 +65,10 @@ int main()
 	AipsrcVector<String>::set(index, tmp);
 	tmp.resize(0);
 	// Someday this test will fail!
-	tmp = AppInfo::workDirectories(1000000);
-	AlwaysAssertExit(tmp.nelements() == 0);
+        // Indeed this tests failed in Nov-2009 on a 2 TByte disk.
+        // So outcommented the test.
+	///tmp = AppInfo::workDirectories(1000000);
+	///AlwaysAssertExit(tmp.nelements() == 0);
 
 	// Check that we cycle through the valid directories
 	tmp = AppInfo::workDirectories();
