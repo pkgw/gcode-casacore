@@ -49,7 +49,7 @@ env["casaincdir"] = [os.path.join(env["casacoreroot"],"include","casacore")]
 env["casalibdir"] = [os.path.join(env["casacoreroot"],env.ARCHLIBDIR)]
 
 
-env["ASSAYCOM"] = os.path.join(env["casashrdir"][0], "casacore_assay")
+env["ASSAYCOM"] = os.path.join(env["prefix"], "bin", "casacore_assay")
 
 if not env.GetOption('clean'):
     conf = Configure(env)
