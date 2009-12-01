@@ -4,5 +4,5 @@ import os, glob
 Import( ["buildenv", "installer"])
 myenv = buildenv.Clone()
 
-myenv.CasaBuilder(source="*.c", installer=installer, tests=False)
+myenv.CasaBuilder(installer=installer)
 
