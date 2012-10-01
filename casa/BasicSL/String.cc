@@ -31,6 +31,7 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <algorithm>
+#include <cstdio>
 #include <casa/string.h>
 #include <casa/sstream.h>
 #include <stdio.h>		// for vsnprintf( )

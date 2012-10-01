@@ -35,6 +35,7 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 #include <cstdio>
 #include <unistd.h>
 
